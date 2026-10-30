@@ -6,3 +6,7 @@ test-results
 package-lock.json
 .claude/skills
 src/lib/stats/__tests__/fixtures
+src/components/reactbits
+src/components/ui
+src/hooks/use-mobile.js
+.mcp.json
