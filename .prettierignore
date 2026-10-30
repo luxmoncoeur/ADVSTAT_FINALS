@@ -1,0 +1,8 @@
+.next
+node_modules
+coverage
+playwright-report
+test-results
+package-lock.json
+.claude/skills
+src/lib/stats/__tests__/fixtures
