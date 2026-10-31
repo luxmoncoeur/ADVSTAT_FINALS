@@ -90,7 +90,7 @@ export function DataTableEditor({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-destructive touch-manipulation"
+                      className="size-8 min-h-[32px] min-w-[32px] touch-manipulation text-muted-foreground hover:text-destructive"
                       onClick={() => onRemoveRow(row.id)}
                       disabled={rows.length === 1}
                       aria-label={`Remove row ${index + 1}`}

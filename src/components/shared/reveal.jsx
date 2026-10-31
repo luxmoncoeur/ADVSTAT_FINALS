@@ -7,12 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
  * Damping ratio 1.0 (bounce 0), Response 0.4s (WWDC 2018 Fluid Interfaces).
  * Smooth, natural arrival with zero oscillation.
  */
-export function Reveal({
-  children,
-  delay = 0,
-  distance = 18,
-  className = "",
-}) {
+export function Reveal({ children, delay = 0, distance = 18, className = "" }) {
   const reduce = useReducedMotion();
 
   if (reduce) {

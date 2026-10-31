@@ -54,8 +54,6 @@ const AURORA = {
   dark: { colorStops: ["#4f46e5", "#0e7490", "#6d28d9"], blend: 0.55, opacity: 0.55 },
 };
 
-
-
 function useSamples() {
   return useMemo(() => {
     const sample = REGRESSION_EXAMPLES[0];
@@ -168,7 +166,7 @@ function ModuleCard({
     >
       <Link
         href={href}
-        className="flex h-full flex-col gap-3 rounded-2xl p-4 outline-none transition-transform duration-120 active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-ring motion-reduce:active:scale-100 sm:p-5"
+        className="flex h-full flex-col gap-3 rounded-2xl p-4 transition-transform duration-120 outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.985] motion-reduce:active:scale-100 sm:p-5"
       >
         <div className="flex items-center gap-3">
           <span
@@ -396,7 +394,7 @@ export function Dashboard() {
                 className="min-w-[8.5rem] rounded-xl border border-border/60 bg-card/85 px-3.5 py-2.5 shadow-xs backdrop-blur-md dark:border-white/10"
               >
                 <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-                <dd className="mt-0.5 font-mono text-xl font-semibold tracking-tight tabular-nums text-foreground">
+                <dd className="mt-0.5 font-mono text-xl font-semibold tracking-tight text-foreground tabular-nums">
                   {value}
                 </dd>
               </div>
