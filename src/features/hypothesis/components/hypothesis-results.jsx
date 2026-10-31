@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useResolvedTheme } from "@/hooks/use-resolved-theme";
 import { formatNumber } from "@/lib/format";
 import { THEME_HEX } from "@/lib/theme-colors";
+import { claimConclusion } from "../claim";
 import { explainResult } from "../explain";
 import { NormalCurveChart } from "./normal-curve-chart";
 import { ZTableLookup } from "./z-table-lookup";
@@ -54,7 +55,7 @@ function Stat({ label, children, tone }) {
  * At-a-glance verdict: the decision, the four key numbers, and three plain
  * sentences explaining why.
  */
-export function VerdictCard({ result, statements }) {
+export function VerdictCard({ result, statements, claimSide = null }) {
   const { decimals } = useSettings();
   const theme = useResolvedTheme();
   const colors = THEME_HEX[theme];
@@ -115,6 +116,14 @@ export function VerdictCard({ result, statements }) {
               “{inWords}” {reject ? "is supported." : "cannot be ruled out."}
             </p>
           ) : null}
+          {claimSide ? (
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+              <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground">
+                Claim in {claimSide === "h0" ? "H₀" : "Hₐ"}
+              </span>
+              <span className="font-medium">{claimConclusion(claimSide, reject)}</span>
+            </p>
+          ) : null}
         </div>
         <div className="rounded-xl bg-muted/50 p-4">
           <p className="mb-3 flex items-center gap-2 text-sm font-semibold">
@@ -140,7 +149,7 @@ export function VerdictCard({ result, statements }) {
 }
 
 /** Curve, formal conclusion, z-table and worked solution. */
-export function ZTestDetails({ result }) {
+export function ZTestDetails({ result, action = null }) {
   const [showPValue, setShowPValue] = useState(true);
   const zc = /** @type {number} */ (
     result.tail === "left" ? result.critical.lower : result.critical.upper
@@ -188,6 +197,7 @@ export function ZTestDetails({ result }) {
             <CardDescription>
               Formal conclusion, the step-by-step solution and the z-table lookup.
             </CardDescription>
+            {action ? <CardAction>{action}</CardAction> : null}
           </CardHeader>
           <CardContent>
             <p className="mb-4 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3.5 text-sm leading-relaxed text-foreground sm:text-base">

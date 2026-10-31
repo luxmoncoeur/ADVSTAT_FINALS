@@ -20,6 +20,7 @@ import { parseNumber } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { TAILS, scenariosFor } from "../config";
 import { useZTest } from "../hooks/use-ztest";
+import { HypothesisReport } from "./hypothesis-report";
 import { VerdictCard, ZTestDetails } from "./hypothesis-results";
 import { AlphaPanel, HypothesesPanel, SampleInputs, TestPicker } from "./test-inputs";
 
@@ -209,6 +210,8 @@ export function HypothesisWorkspace() {
                   statements={zt.statements}
                   onStatementsChange={zt.setStatements}
                   errors={zt.fieldErrors}
+                  claimSide={zt.claimSide}
+                  onApplyClaim={zt.applyClaim}
                 />
               </section>
               <section aria-labelledby="sec-alpha" className="space-y-3">
@@ -271,8 +274,19 @@ export function HypothesisWorkspace() {
           ) : null}
           {result ? (
             <>
-              <VerdictCard result={result} statements={zt.submitted?.statements} />
-              <ZTestDetails result={result} />
+              <VerdictCard
+                result={result}
+                statements={zt.submitted?.statements}
+                claimSide={zt.submitted?.claimSide ?? null}
+              />
+              <ZTestDetails
+                result={result}
+                action={
+                  zt.submitted ? (
+                    <HypothesisReport result={result} submitted={zt.submitted} />
+                  ) : null
+                }
+              />
             </>
           ) : (
             <ScenarioPanel zt={zt} />

@@ -60,9 +60,13 @@ export function useZTest() {
   const [customAlpha, setCustomAlpha] = useState("");
   const [values, setValues] = useState(/** @type {Record<string, string>} */ ({}));
   const [statements, setStatements] = useState({ h0: "", ha: "" });
+  /** Which hypothesis holds the claim, and the tail it was set for. */
+  const [claim, setClaim] = useState(
+    /** @type {null | { side: import('../claim').ClaimSide, tail: string }} */ (null),
+  );
   const [fieldErrors, setFieldErrors] = useState(/** @type {Record<string, string>} */ ({}));
   const [submitted, setSubmitted] = useState(
-    /** @type {null | { testId: string, input: Record<string, number | string>, statements: { h0: string, ha: string } }} */ (
+    /** @type {null | { testId: string, input: Record<string, number | string>, statements: { h0: string, ha: string }, claimSide: import('../claim').ClaimSide | null }} */ (
       null
     ),
   );
@@ -70,6 +74,8 @@ export function useZTest() {
   const test = TESTS[testId];
   const fields = fieldsFor(testId, mode);
   const alpha = readAlpha(alphaChoice, customAlpha);
+  // The claim only applies while Hₐ still points the way it was set.
+  const claimSide = claim && claim.tail === tail ? claim.side : null;
 
   const outcome = useMemo(() => {
     if (!submitted) return null;
@@ -88,6 +94,7 @@ export function useZTest() {
 
   const chooseTest = useCallback((id) => {
     setTestId(id);
+    setClaim(null);
     setFieldErrors({});
     setSubmitted(null);
   }, []);
@@ -100,6 +107,7 @@ export function useZTest() {
       setTail(scenario.tail);
       setAlphaChoice(scenario.alpha);
       setStatements(scenario.statements);
+      setClaim(null);
       setFieldErrors({});
       if (autoCompute) {
         const { input, errors } = buildInput({
@@ -110,7 +118,7 @@ export function useZTest() {
           alpha: readAlpha(scenario.alpha, ""),
         });
         if (Object.keys(errors).length === 0)
-          setSubmitted({ testId, input, statements: scenario.statements });
+          setSubmitted({ testId, input, statements: scenario.statements, claimSide: null });
       } else {
         toast.message(`Scenario loaded: ${scenario.title ?? "example"}`, {
           description: scenario.story,
@@ -125,8 +133,31 @@ export function useZTest() {
     [loadScenario, testId],
   );
 
+  /**
+   * Apply the claim helper: set the tail, mark which hypothesis is the claim,
+   * and fill in the H₀ value and the claim sentence when they were found.
+   */
+  const applyClaim = useCallback(
+    ({ tail: nextTail, side, nullValue, sentence }) => {
+      setTail(nextTail);
+      setClaim({ side, tail: nextTail });
+      const nullField = TESTS[testId].nullField;
+      if (nullField && nullValue !== undefined && nullValue !== null) {
+        setValues((current) => ({ ...current, [nullField.name]: String(nullValue) }));
+        setFieldErrors((current) => {
+          const next = { ...current };
+          delete next[nullField.name];
+          return next;
+        });
+      }
+      if (sentence) setStatements((current) => ({ ...current, [side]: sentence.slice(0, 200) }));
+    },
+    [testId],
+  );
+
   const reset = useCallback(() => {
     setValues({});
+    setClaim(null);
     setStatements({ h0: "", ha: "" });
     setFieldErrors({});
     setSubmitted(null);
@@ -139,8 +170,8 @@ export function useZTest() {
       toast.error("Check the highlighted inputs.");
       return;
     }
-    setSubmitted({ testId, input, statements });
-  }, [alpha, fields, statements, tail, test, testId, values]);
+    setSubmitted({ testId, input, statements, claimSide });
+  }, [alpha, claimSide, fields, statements, tail, test, testId, values]);
 
   const stale =
     submitted !== null &&
@@ -180,6 +211,8 @@ export function useZTest() {
     setValue,
     statements,
     setStatements,
+    claimSide,
+    applyClaim,
     fields,
     fieldErrors,
     outcome,

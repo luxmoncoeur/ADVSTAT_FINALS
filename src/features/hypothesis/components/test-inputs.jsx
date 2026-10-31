@@ -9,13 +9,7 @@ import { formatExact } from "@/lib/format";
 import { parseNumber } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { TAILS, TESTS, TEST_ORDER } from "../config";
-
-
-
-
-
-
-
+import { ClaimHelper } from "./claim-helper";
 
 /** Compact selector for the four z-tests (radio group): one row on desktop, 2 × 2 on phones. */
 export function TestPicker({ value, onChange }) {
@@ -71,14 +65,37 @@ export function HypothesesPanel({
   statements,
   onStatementsChange,
   errors,
+  claimSide,
+  onApplyClaim,
 }) {
   const nullText = test.nullField ? (values[test.nullField.name] ?? "") : "0";
   const parsed = parseNumber(nullText);
   const shown = parsed === null ? (test.nullField?.symbol ?? "0") : formatExact(parsed);
   const operator = TAILS.find((t) => t.value === tail)?.operator ?? "≠";
 
+  const claimTag = (side) =>
+    claimSide === side ? (
+      <span className="ml-2 rounded-full bg-primary px-2 py-0.5 font-sans text-[11px] font-medium text-primary-foreground">
+        claim
+      </span>
+    ) : null;
+
   return (
     <div className="space-y-5">
+      <details className="group/claim rounded-lg border border-dashed border-primary/40 bg-accent/30">
+        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium outline-none select-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+          <span
+            className="inline-block transition-transform group-open/claim:rotate-90 motion-reduce:transition-none"
+            aria-hidden="true"
+          >
+            ›
+          </span>
+          Not sure which is H₀ and Hₐ?{" "}
+          <span className="font-normal text-muted-foreground">Start from the claim</span>
+        </summary>
+        <ClaimHelper test={test} values={values} onApply={onApplyClaim} />
+      </details>
+
       {test.nullField ? (
         <NumberField
           name={test.nullField.name}
@@ -107,7 +124,6 @@ export function HypothesesPanel({
           onChange={onTailChange}
           size="md"
           className="w-full"
-
         />
       </div>
 
@@ -118,10 +134,12 @@ export function HypothesesPanel({
         <p>
           <span className="text-muted-foreground">H₀: </span>
           {test.parameter} = {shown}
+          {claimTag("h0")}
         </p>
         <p>
           <span className="text-muted-foreground">Hₐ: </span>
           {test.parameter} {operator} {shown}
+          {claimTag("ha")}
         </p>
       </div>
 
@@ -182,7 +200,6 @@ export function AlphaPanel({ choice, onChoiceChange, customText, onCustomChange,
         value={choice}
         onChange={onChoiceChange}
         className="w-full font-mono"
-
       />
       {choice === "custom" ? (
         <div className="grid gap-1.5">
@@ -235,7 +252,6 @@ export function SampleInputs({ test, mode, onModeChange, fields, values, onValue
           onChange={onModeChange}
           size="sm"
           className="w-full"
-
         />
       ) : null}
       <div className={cn("grid gap-5", groups.length > 1 && "md:grid-cols-2")}>
