@@ -96,7 +96,7 @@ export function SiteHeader() {
   );
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur-md supports-[backdrop-filter]:bg-background/65 sm:px-4 md:rounded-t-xl">
+    <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border/50 bg-background/75 px-3 backdrop-blur-xl backdrop-saturate-180 supports-[backdrop-filter]:bg-background/70 sm:px-4 md:rounded-t-2xl">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-4" />
       <Breadcrumb>

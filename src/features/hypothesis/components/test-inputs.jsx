@@ -10,12 +10,12 @@ import { parseNumber } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { TAILS, TESTS, TEST_ORDER } from "../config";
 
-const SEGMENT_COLORS = {
-  trackColor: "var(--muted)",
-  thumbColor: "var(--card)",
-  textColor: "var(--foreground)",
-  activeTextColor: "var(--foreground)",
-};
+
+
+
+
+
+
 
 /** Compact selector for the four z-tests (radio group): one row on desktop, 2 × 2 on phones. */
 export function TestPicker({ value, onChange }) {
@@ -107,7 +107,7 @@ export function HypothesesPanel({
           onChange={onTailChange}
           size="md"
           className="w-full"
-          {...SEGMENT_COLORS}
+
         />
       </div>
 
@@ -182,7 +182,7 @@ export function AlphaPanel({ choice, onChoiceChange, customText, onCustomChange,
         value={choice}
         onChange={onChoiceChange}
         className="w-full font-mono"
-        {...SEGMENT_COLORS}
+
       />
       {choice === "custom" ? (
         <div className="grid gap-1.5">
@@ -235,7 +235,7 @@ export function SampleInputs({ test, mode, onModeChange, fields, values, onValue
           onChange={onModeChange}
           size="sm"
           className="w-full"
-          {...SEGMENT_COLORS}
+
         />
       ) : null}
       <div className={cn("grid gap-5", groups.length > 1 && "md:grid-cols-2")}>

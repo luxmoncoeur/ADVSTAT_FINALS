@@ -244,7 +244,7 @@ export function HypothesisWorkspace() {
             </CardContent>
             <CardFooter className="gap-2 border-t px-4 pt-4">
               <Button variant="outline" size="sm" onClick={zt.loadExample}>
-                <Sparkles className="size-4" aria-hidden="true" /> Load example
+                Load example
               </Button>
               <Button variant="ghost" size="sm" onClick={zt.reset}>
                 <Eraser className="size-4" aria-hidden="true" /> Clear
