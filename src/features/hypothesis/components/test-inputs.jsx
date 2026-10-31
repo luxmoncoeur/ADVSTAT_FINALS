@@ -17,13 +17,13 @@ const SEGMENT_COLORS = {
   activeTextColor: "var(--foreground)",
 };
 
-/** Four selectable test cards (radio group). */
+/** Compact selector for the four z-tests (radio group): one row on desktop, 2 × 2 on phones. */
 export function TestPicker({ value, onChange }) {
   return (
     <RadioGroup
       value={value}
       onValueChange={onChange}
-      className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      className="grid grid-cols-2 gap-2 lg:grid-cols-4"
       aria-label="Type of z-test"
     >
       {TEST_ORDER.map((id) => {
@@ -34,26 +34,26 @@ export function TestPicker({ value, onChange }) {
             key={id}
             htmlFor={`test-${id}`}
             className={cn(
-              "group relative flex cursor-pointer gap-3 rounded-xl border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
-              active && "border-primary bg-accent/50 shadow-[0_10px_30px_-18px_var(--primary)]",
+              "flex cursor-pointer items-center gap-2.5 rounded-xl border bg-card px-3 py-2.5 transition-colors hover:border-primary/50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+              active && "border-primary bg-accent/60",
             )}
           >
             <span
               className={cn(
-                "grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground transition-colors",
+                "grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground transition-colors",
                 active && "bg-primary text-primary-foreground",
               )}
               aria-hidden="true"
             >
-              <test.icon className="size-5" />
+              <test.icon className="size-4" />
             </span>
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center justify-between gap-2">
-                <span className="font-medium">{test.title}</span>
-                <RadioGroupItem id={`test-${id}`} value={id} />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block text-sm font-medium">{test.title}</span>
+              <span className="block truncate font-mono text-[11px] text-muted-foreground">
+                {test.subtitle}
               </span>
-              <span className="block font-mono text-xs text-muted-foreground">{test.subtitle}</span>
             </span>
+            <RadioGroupItem id={`test-${id}`} value={id} />
           </label>
         );
       })}

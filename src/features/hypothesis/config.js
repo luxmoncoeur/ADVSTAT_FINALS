@@ -178,3 +178,145 @@ export const TAILS = [
 ];
 
 export const ALPHA_PRESETS = ["0.10", "0.05", "0.01"];
+
+const DEFAULT_TITLES = {
+  "one-mean": "Battery life claim",
+  "one-proportion": "Exam passing rate",
+  "two-means": "Two class sections",
+  "two-proportions": "Website redesign",
+};
+
+/**
+ * Extra practice scenarios (illustrative data). Each includes the expected
+ * outcome so the cards can be mixed: some reject H₀, some do not.
+ */
+const EXTRA_SCENARIOS = {
+  "one-mean": [
+    {
+      id: "coffee",
+      title: "Coffee machine fill",
+      values: { mu0: "250", sampleMean: "248.9", sigma: "4", n: "40" },
+      tail: "left",
+      alpha: "0.05",
+      statements: {
+        h0: "The machine fills cups with 250 mL on average.",
+        ha: "The machine underfills cups (less than 250 mL).",
+      },
+      story:
+        "A café's machine should dispense 250 mL (σ = 4 mL). 40 cups average 248.9 mL. Is it underfilling?",
+    },
+    {
+      id: "iq",
+      title: "Tutoring program",
+      values: { mu0: "100", sampleMean: "104", sigma: "15", n: "25" },
+      tail: "right",
+      alpha: "0.05",
+      statements: {
+        h0: "The program has no effect: mean score is 100.",
+        ha: "The program raises the mean score above 100.",
+      },
+      story:
+        "Test scores have μ = 100 and σ = 15. After a tutoring program, 25 students average 104. Did scores increase?",
+    },
+  ],
+  "one-proportion": [
+    {
+      id: "coin",
+      title: "Is the coin fair?",
+      values: { p0: "0.5", successes: "270", n: "500" },
+      tail: "two",
+      alpha: "0.05",
+      statements: { h0: "The coin is fair (p = 0.5).", ha: "The coin is not fair." },
+      story: "A coin is flipped 500 times and lands heads 270 times. Is it biased?",
+    },
+    {
+      id: "defects",
+      title: "Defect rate",
+      values: { p0: "0.05", successes: "38", n: "500" },
+      tail: "right",
+      alpha: "0.01",
+      statements: { h0: "The defect rate is 5%.", ha: "The defect rate is higher than 5%." },
+      story:
+        "A supplier promises at most 5% defective parts. An inspection finds 38 defects in 500 parts.",
+    },
+  ],
+  "two-means": [
+    {
+      id: "fertilizer",
+      title: "Fertilizer comparison",
+      values: {
+        delta0: "0",
+        mean1: "52.4",
+        sigma1: "5",
+        n1: "40",
+        mean2: "50.9",
+        sigma2: "6",
+        n2: "45",
+      },
+      tail: "right",
+      alpha: "0.05",
+      statements: {
+        h0: "Both fertilizers give the same mean plant height.",
+        ha: "Fertilizer A gives taller plants than fertilizer B.",
+      },
+      story:
+        "40 plants with fertilizer A average 52.4 cm (σ = 5); 45 plants with B average 50.9 cm (σ = 6).",
+    },
+    {
+      id: "delivery",
+      title: "Delivery times",
+      values: {
+        delta0: "0",
+        mean1: "28.5",
+        sigma1: "4.2",
+        n1: "50",
+        mean2: "30.1",
+        sigma2: "3.8",
+        n2: "60",
+      },
+      tail: "left",
+      alpha: "0.01",
+      statements: {
+        h0: "Both couriers have the same mean delivery time.",
+        ha: "Courier A is faster (lower mean time) than courier B.",
+      },
+      story:
+        "Courier A: 50 deliveries average 28.5 min (σ = 4.2). Courier B: 60 deliveries average 30.1 min (σ = 3.8).",
+    },
+  ],
+  "two-proportions": [
+    {
+      id: "side-effects",
+      title: "Side effects",
+      values: { x1: "18", n1: "300", x2: "12", n2: "300" },
+      tail: "two",
+      alpha: "0.05",
+      statements: {
+        h0: "Side effects occur at the same rate with both drugs.",
+        ha: "The side-effect rates differ.",
+      },
+      story: "18 of 300 patients on drug A and 12 of 300 on drug B reported side effects.",
+    },
+    {
+      id: "online-class",
+      title: "Online vs. onsite",
+      values: { x1: "168", n1: "240", x2: "141", n2: "235" },
+      tail: "two",
+      alpha: "0.05",
+      statements: {
+        h0: "Online and onsite classes have the same pass rate.",
+        ha: "The pass rates differ.",
+      },
+      story: "168 of 240 online students passed, compared with 141 of 235 onsite students.",
+    },
+  ],
+};
+
+/** Every practice scenario for a test, the built-in example first. */
+export function scenariosFor(testId) {
+  const test = TESTS[testId];
+  return [
+    { id: "default", title: DEFAULT_TITLES[testId], ...test.example },
+    ...EXTRA_SCENARIOS[testId],
+  ];
+}
