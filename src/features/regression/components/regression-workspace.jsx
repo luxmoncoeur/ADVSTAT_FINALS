@@ -9,6 +9,8 @@ import {
   Table2,
   Upload,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 import { ComputeButton } from "@/components/shared/compute-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Reveal } from "@/components/shared/reveal";
@@ -28,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRegression } from "../hooks/use-regression";
 import { DataTableEditor } from "./data-table-editor";
+import { REGRESSION_EXAMPLES } from "../examples";
 import { DatasetDialog, DatasetGrid } from "./dataset-gallery";
 import { PastePanel, UploadPanel } from "./import-panels";
 import { RegressionReport } from "./regression-report";
@@ -50,6 +53,18 @@ function StartPanel({ onPick }) {
   );
 }
 
+/** Loads `?dataset=<id>` once (links from the dashboard open that dataset). */
+function DatasetFromUrl({ onPick }) {
+  const id = useSearchParams().get("dataset");
+  useEffect(() => {
+    const example = REGRESSION_EXAMPLES.find((item) => item.id === id);
+    if (example) onPick(example);
+    // Only react to the URL, not to a new onPick identity on each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+  return null;
+}
+
 export function RegressionWorkspace() {
   const regression = useRegression();
   const { labels, parsed, outcome, stale } = regression;
@@ -59,6 +74,9 @@ export function RegressionWorkspace() {
 
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-5 p-4 sm:p-6">
+      <Suspense fallback={null}>
+        <DatasetFromUrl onPick={pickExample} />
+      </Suspense>
       <PageHeader
         eyebrow="Module 1"
         icon={ChartScatter}

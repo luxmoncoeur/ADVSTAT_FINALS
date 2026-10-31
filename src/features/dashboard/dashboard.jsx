@@ -4,6 +4,8 @@ import {
   ArrowRight,
   BookOpenText,
   ChartScatter,
+  ChevronLeft,
+  ChevronRight,
   Crosshair,
   FlaskConical,
   ListChecks,
@@ -20,6 +22,7 @@ import {
   CartesianGrid,
   ComposedChart,
   Line,
+  ReferenceLine,
   Scatter,
   XAxis,
   YAxis,
@@ -36,39 +39,34 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
+import { Slider } from "@/components/ui/slider";
 import { buildCurve } from "@/features/hypothesis/components/normal-curve-chart";
+import { equationText } from "@/features/regression/components/regression-results";
 import { REGRESSION_EXAMPLES } from "@/features/regression/examples";
 import { useResolvedTheme } from "@/hooks/use-resolved-theme";
-import { formatNumber } from "@/lib/format";
-import {
-  classifyCorrelation,
-  criticalZ,
-  linearRegression,
-  oneMeanZTest,
-  parseNumber,
-} from "@/lib/stats";
+import { paddedDomain } from "@/lib/chart-utils";
+import { formatNumber, formatPValue } from "@/lib/format";
+import { classifyCorrelation, linearRegression, parseNumber } from "@/lib/stats";
 import { cn } from "@/lib/utils";
+import { whatIfZTest } from "./what-if";
 
 const AURORA = {
   light: { colorStops: ["#c7d2fe", "#a5f3fc", "#ddd6fe"], blend: 0.6, opacity: 0.85 },
   dark: { colorStops: ["#4f46e5", "#0e7490", "#6d28d9"], blend: 0.55, opacity: 0.55 },
 };
 
-function useSamples() {
-  return useMemo(() => {
-    const sample = REGRESSION_EXAMPLES[0];
-    const regression = linearRegression(sample.x, sample.y);
-    const ztest = oneMeanZTest({
-      sampleMean: 510,
-      mu0: 500,
-      sigma: 30,
-      n: 36,
-      alpha: 0.05,
-      tail: "two",
-    });
-    if (!regression.ok || !ztest.ok) throw new Error("Sample data must compute");
-    return { regression: regression.value, ztest: ztest.value };
-  }, []);
+const Z_RANGE = 4;
+const TAIL_NAMES = { two: "two-tailed", left: "left-tailed", right: "right-tailed" };
+
+/** r as plain ASCII text so the r interpreter's parser accepts it. */
+const rText = (r) => (r === null ? "" : r.toFixed(4));
+
+/** @param {number} index */
+function computeRegression(index) {
+  const dataset = REGRESSION_EXAMPLES[index];
+  const outcome = linearRegression(dataset.x, dataset.y);
+  if (!outcome.ok) throw new Error(`Dataset ${dataset.id} must compute`);
+  return outcome.value;
 }
 
 function MiniScatter({ result }) {
@@ -81,24 +79,29 @@ function MiniScatter({ result }) {
     <ChartContainer config={{}} className="aspect-auto h-32 w-full" aria-hidden="true">
       <ComposedChart margin={{ top: 8, right: 8, bottom: 8, left: 8 }} accessibilityLayer={false}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" dataKey="x" domain={["dataMin - 1", "dataMax + 1"]} hide />
-        <YAxis type="number" dataKey="y" domain={["dataMin - 5", "dataMax + 5"]} hide />
+        <XAxis type="number" dataKey="x" domain={paddedDomain(points.map((p) => p.x))} hide />
+        <YAxis
+          type="number"
+          dataKey="y"
+          domain={paddedDomain([...points, ...line].map((p) => p.y))}
+          hide
+        />
         <Line
           data={line}
           dataKey="y"
           stroke="var(--chart-3)"
           strokeWidth={2.5}
           dot={false}
-          animationDuration={1200}
+          animationDuration={600}
         />
-        <Scatter data={points} fill="var(--chart-1)" animationDuration={900} />
+        <Scatter data={points} fill="var(--chart-1)" animationDuration={500} />
       </ComposedChart>
     </ChartContainer>
   );
 }
 
 function MiniCurve({ result }) {
-  const data = useMemo(() => buildCurve(result.tail, result.critical, result.z, 4), [result]);
+  const data = useMemo(() => buildCurve(result.tail, result.critical, result.z, Z_RANGE), [result]);
   return (
     <ChartContainer config={{}} className="aspect-auto h-32 w-full" aria-hidden="true">
       <AreaChart
@@ -107,8 +110,15 @@ function MiniCurve({ result }) {
         accessibilityLayer={false}
       >
         <CartesianGrid vertical horizontal={false} strokeDasharray="3 3" />
-        <XAxis dataKey="x" type="number" domain={[-4, 4]} ticks={[-3, -2, -1, 0, 1, 2, 3]} hide />
+        <XAxis
+          dataKey="x"
+          type="number"
+          domain={[-Z_RANGE, Z_RANGE]}
+          ticks={[-3, -2, -1, 0, 1, 2, 3]}
+          hide
+        />
         <YAxis hide domain={[0, 0.43]} />
+        {/* The curve follows the slider, so its fills update without re-animating. */}
         <Area
           dataKey="accept"
           type="linear"
@@ -116,7 +126,7 @@ function MiniCurve({ result }) {
           fill="var(--accept)"
           fillOpacity={0.22}
           connectNulls={false}
-          animationDuration={1000}
+          isAnimationActive={false}
         />
         <Area
           dataKey="reject"
@@ -125,17 +135,17 @@ function MiniCurve({ result }) {
           fill="var(--reject)"
           fillOpacity={0.45}
           connectNulls={false}
-          animationDuration={1000}
+          isAnimationActive={false}
         />
         <Area
-          dataKey="z"
+          dataKey="density"
           type="linear"
-          stroke="none"
-          fill="var(--primary)"
-          fillOpacity={0.7}
-          connectNulls={false}
-          animationDuration={1000}
+          stroke="var(--foreground)"
+          strokeWidth={1.75}
+          fill="none"
+          isAnimationActive={false}
         />
+        <ReferenceLine x={result.z} stroke="var(--primary)" strokeWidth={2.5} />
       </AreaChart>
     </ChartContainer>
   );
@@ -148,6 +158,7 @@ function ModuleCard({
   title,
   description,
   preview,
+  controls,
   footer,
   theme,
   className,
@@ -158,16 +169,13 @@ function ModuleCard({
       spotlightColor="var(--primary)"
       intensity={theme === "dark" ? 0.2 : 0.5}
       spotlightSize={300}
-      className={cn("group h-full rounded-2xl", className)}
+      className={cn("h-full rounded-2xl", className)}
       style={{
         "--spotlight-card-surface": "var(--card)",
         "--spotlight-card-border": "var(--border)",
       }}
     >
-      <Link
-        href={href}
-        className="flex h-full flex-col gap-3 rounded-2xl p-4 transition-transform duration-120 outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.985] motion-reduce:active:scale-100 sm:p-5"
-      >
+      <div className="flex h-full flex-col gap-3 p-4 sm:p-5">
         <div className="flex items-center gap-3">
           <span
             className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_4px_14px_-4px_var(--primary)]"
@@ -184,27 +192,92 @@ function ModuleCard({
         <div className="flex min-h-32 flex-1 rounded-xl border border-border/60 bg-background/60 p-1.5 [&>[data-slot=chart]]:h-full">
           {preview}
         </div>
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="font-mono text-xs text-muted-foreground tabular-nums">{footer}</span>
-          <span className="flex items-center gap-1 font-medium text-primary">
+        {controls}
+        <div className="flex items-center justify-between gap-3 border-t pt-3 text-sm">
+          <span className="min-w-0 truncate font-mono text-xs text-muted-foreground tabular-nums">
+            {footer}
+          </span>
+          <Link
+            href={href}
+            aria-label={`Open ${title}`}
+            className="group flex shrink-0 items-center gap-1 rounded-md font-medium text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             Open{" "}
             <ArrowRight
               className="size-4 transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
               aria-hidden="true"
             />
-          </span>
+          </Link>
         </div>
-      </Link>
+      </div>
     </SpotlightCard>
   );
 }
 
-/** Quick tool: critical z for any common α and tail, computed with the same engine. */
-function CriticalZTool() {
+/** Previous / next through the sample datasets. */
+function DatasetStepper({ index, onChange }) {
+  const dataset = REGRESSION_EXAMPLES[index];
+  const count = REGRESSION_EXAMPLES.length;
+  const step = (delta) => onChange((index + delta + count) % count);
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-8 shrink-0"
+        onClick={() => step(-1)}
+        aria-label="Previous dataset"
+      >
+        <ChevronLeft className="size-4" aria-hidden="true" />
+      </Button>
+      <div className="min-w-0 flex-1 text-center" aria-live="polite">
+        <p className="truncate text-sm font-medium">{dataset.name}</p>
+        <p className="text-xs text-muted-foreground">
+          {dataset.category} · {index + 1} of {count}
+        </p>
+      </div>
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-8 shrink-0"
+        onClick={() => step(1)}
+        aria-label="Next dataset"
+      >
+        <ChevronRight className="size-4" aria-hidden="true" />
+      </Button>
+    </div>
+  );
+}
+
+/** Drag an observed z and watch it cross between the regions. */
+function ZSlider({ value, onChange }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-baseline justify-between text-sm">
+        <span id="what-if-z" className="font-medium">
+          Try a z value
+        </span>
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">
+          z = {formatNumber(value, 2, { fixed: true })}
+        </span>
+      </div>
+      <Slider
+        min={-Z_RANGE}
+        max={Z_RANGE}
+        step={0.01}
+        value={[value]}
+        onValueChange={([next]) => onChange(next)}
+        thumbLabel="Observed z"
+        aria-labelledby="what-if-z"
+        className="py-1.5 [&_[data-slot=slider-thumb]]:size-4 [&_[data-slot=slider-track]]:h-1.5"
+      />
+    </div>
+  );
+}
+
+/** Quick tool: critical z for any common α and tail; also drives the curve. */
+function CriticalZTool({ alpha, tail, onAlphaChange, onTailChange, critical }) {
   const { decimals } = useSettings();
-  const [alpha, setAlpha] = useState("0.05");
-  const [tail, setTail] = useState("two");
-  const critical = criticalZ(Number(alpha), /** @type {'two'|'left'|'right'} */ (tail));
   const value = /** @type {number} */ (tail === "left" ? critical.lower : critical.upper);
   return (
     <Card className="gap-3 py-4">
@@ -212,14 +285,16 @@ function CriticalZTool() {
         <CardTitle className="flex items-center gap-2 text-sm">
           <Crosshair className="size-4 text-primary" aria-hidden="true" /> Critical z finder
         </CardTitle>
-        <CardDescription className="text-xs">No z-table needed.</CardDescription>
+        <CardDescription className="text-xs">
+          Also sets α and the tail of the curve.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2.5 px-4">
         <RubberSegment
           aria-label="Level of significance"
           items={["0.10", "0.05", "0.01"]}
           value={alpha}
-          onChange={setAlpha}
+          onChange={onAlphaChange}
           size="sm"
           className="w-full font-mono"
         />
@@ -231,7 +306,7 @@ function CriticalZTool() {
             { value: "right", label: "Right" },
           ]}
           value={tail}
-          onChange={setTail}
+          onChange={onTailChange}
           size="sm"
           className="w-full"
         />
@@ -248,9 +323,8 @@ function CriticalZTool() {
   );
 }
 
-/** Quick tool: interpret any r on the strength scale. */
-function RInterpreterTool() {
-  const [text, setText] = useState("0.85");
+/** Quick tool: interpret any r on the strength scale; follows the dataset until edited. */
+function RInterpreterTool({ text, onChange, source }) {
   const r = parseNumber(text);
   const valid = r !== null && r >= -1 && r <= 1;
   const reading = valid ? classifyCorrelation(r) : null;
@@ -260,7 +334,9 @@ function RInterpreterTool() {
         <CardTitle className="flex items-center gap-2 text-sm">
           <Activity className="size-4 text-primary" aria-hidden="true" /> r interpreter
         </CardTitle>
-        <CardDescription className="text-xs">How strong is a correlation?</CardDescription>
+        <CardDescription className="truncate text-xs">
+          {source ? `From “${source}”. Type any r.` : "How strong is a correlation?"}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2.5 px-4">
         <NumberField
@@ -268,7 +344,7 @@ function RInterpreterTool() {
           label="Correlation r"
           symbol="−1 to 1"
           value={text}
-          onChange={setText}
+          onChange={onChange}
           error={text.trim() !== "" && !valid ? "Enter a number from −1 to 1" : null}
         />
         <div className="space-y-1.5" aria-live="polite">
@@ -305,7 +381,66 @@ const FEATURES = [
 export function Dashboard() {
   const theme = useResolvedTheme();
   const { decimals } = useSettings();
-  const { regression, ztest } = useSamples();
+
+  // Shared state: the dataset drives the scatter, r, r² and the r interpreter;
+  // α, the tail and the z slider drive the curve, z, p-value and verdict.
+  const [datasetIndex, setDatasetIndex] = useState(0);
+  const [rInput, setRInput] = useState(() => rText(computeRegression(0).r));
+  const [rFromDataset, setRFromDataset] = useState(true);
+  const [alpha, setAlpha] = useState("0.05");
+  const [tail, setTail] = useState(/** @type {'two'|'left'|'right'} */ ("two"));
+  const [z, setZ] = useState(2);
+
+  const dataset = REGRESSION_EXAMPLES[datasetIndex];
+  const regression = useMemo(() => computeRegression(datasetIndex), [datasetIndex]);
+  const ztest = useMemo(() => whatIfZTest(z, Number(alpha), tail), [z, alpha, tail]);
+
+  const pickDataset = (index) => {
+    setDatasetIndex(index);
+    setRInput(rText(computeRegression(index).r));
+    setRFromDataset(true);
+  };
+  const typeR = (text) => {
+    setRInput(text);
+    setRFromDataset(false);
+  };
+
+  const verdictTone = ztest.reject ? "text-reject" : "text-accept";
+  const stats = [
+    {
+      label: "Correlation r",
+      value:
+        regression.r === null ? (
+          "—"
+        ) : (
+          <AnimatedNumber value={regression.r} decimals={decimals} duration={0.6} />
+        ),
+    },
+    {
+      label: "r²",
+      value:
+        regression.rSquared === null ? (
+          "—"
+        ) : (
+          <AnimatedNumber value={regression.rSquared} decimals={decimals} duration={0.6} />
+        ),
+    },
+    // z and p follow the slider, so they update instantly instead of counting up.
+    {
+      label: "Test z",
+      value: (
+        <span className="tabular-nums">{formatNumber(ztest.z, decimals, { fixed: true })}</span>
+      ),
+    },
+    {
+      label: "p-value",
+      value: (
+        <span className={cn("tabular-nums", verdictTone)}>
+          {formatPValue(ztest.pValue, decimals)}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-4 p-4 sm:p-6">
@@ -377,25 +512,14 @@ export function Dashboard() {
             </div>
           </div>
           <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-2">
-            {[
-              ["Sample r", <AnimatedNumber key="r" value={regression.r} decimals={decimals} />],
-              [
-                "Sample r²",
-                <AnimatedNumber key="r2" value={regression.rSquared} decimals={decimals} />,
-              ],
-              ["Sample z", <AnimatedNumber key="z" value={ztest.z} decimals={decimals} />],
-              [
-                "p-value",
-                <AnimatedNumber key="p" value={ztest.pValue} decimals={decimals} kind="p" />,
-              ],
-            ].map(([label, value]) => (
+            {stats.map((stat) => (
               <div
-                key={String(label)}
+                key={stat.label}
                 className="min-w-[8.5rem] rounded-xl border border-border/60 bg-card/85 px-3.5 py-2.5 shadow-xs backdrop-blur-md dark:border-white/10"
               >
-                <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
+                <dt className="text-xs font-medium text-muted-foreground">{stat.label}</dt>
                 <dd className="mt-0.5 font-mono text-xl font-semibold tracking-tight text-foreground tabular-nums">
-                  {value}
+                  {stat.value}
                 </dd>
               </div>
             ))}
@@ -407,13 +531,14 @@ export function Dashboard() {
         <Reveal className="h-full xl:col-span-5" distance={16}>
           <ModuleCard
             theme={theme}
-            href="/regression"
+            href={`/regression?dataset=${dataset.id}`}
             icon={ChartScatter}
             eyebrow="Module 1"
             title="Linear Regression"
             description="Equation, r, strength of relationship and a scatter diagram with the fitted line."
             preview={<MiniScatter result={regression} />}
-            footer={`Ŷ = ${formatNumber(regression.intercept, 2, { fixed: true })} + ${formatNumber(regression.slope, 2, { fixed: true })}X · ${REGRESSION_EXAMPLES.length} datasets`}
+            controls={<DatasetStepper index={datasetIndex} onChange={pickDataset} />}
+            footer={`${equationText(regression.intercept, regression.slope, 2)} · n = ${regression.n}`}
           />
         </Reveal>
         <Reveal className="h-full xl:col-span-4" distance={16} delay={0.06}>
@@ -425,7 +550,15 @@ export function Dashboard() {
             title="Hypothesis Testing"
             description="Four z-tests with a plain-language verdict, the normal curve and critical values."
             preview={<MiniCurve result={ztest} />}
-            footer={`z = ${formatNumber(ztest.z, 2, { fixed: true })} · ${ztest.reject ? "Reject H₀" : "Fail to reject H₀"}`}
+            controls={<ZSlider value={z} onChange={setZ} />}
+            footer={
+              <>
+                α = {alpha} · {TAIL_NAMES[tail]} ·{" "}
+                <span className={cn("font-semibold", verdictTone)} aria-live="polite">
+                  {ztest.reject ? "Reject H₀" : "Fail to reject H₀"}
+                </span>
+              </>
+            }
           />
         </Reveal>
         <Reveal
@@ -433,8 +566,18 @@ export function Dashboard() {
           distance={16}
           delay={0.12}
         >
-          <CriticalZTool />
-          <RInterpreterTool />
+          <CriticalZTool
+            alpha={alpha}
+            tail={tail}
+            onAlphaChange={setAlpha}
+            onTailChange={setTail}
+            critical={ztest.critical}
+          />
+          <RInterpreterTool
+            text={rInput}
+            onChange={typeR}
+            source={rFromDataset ? dataset.name : null}
+          />
         </Reveal>
       </div>
 
