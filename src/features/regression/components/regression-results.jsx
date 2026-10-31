@@ -230,7 +230,7 @@ export function RegressionVisuals({ result, labels }) {
 }
 
 /** Below the charts: worked solution beside the interpretation and prediction. */
-export function RegressionSolution({ result, labels }) {
+export function RegressionSolution({ result, labels, action = null }) {
   return (
     <div className="grid items-start gap-4 xl:grid-cols-12">
       <Reveal className="xl:col-span-7">
@@ -238,6 +238,7 @@ export function RegressionSolution({ result, labels }) {
           <CardHeader>
             <CardTitle>Step-by-step solution</CardTitle>
             <CardDescription>Each formula with your data substituted.</CardDescription>
+            {action ? <CardAction>{action}</CardAction> : null}
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="steps">

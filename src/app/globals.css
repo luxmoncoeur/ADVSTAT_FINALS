@@ -2,14 +2,19 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* Reports (.light-scope) stay light even in dark mode, so they print cleanly. */
+@custom-variant dark (&:is(.dark *):not(.light-scope, .light-scope *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", var(--font-geist-sans), system-ui, sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", var(--font-geist-sans),
+    system-ui, sans-serif;
   --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, var(--font-geist-mono), monospace;
-  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", var(--font-geist-sans), system-ui, sans-serif;
+  --font-heading:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", var(--font-geist-sans),
+    system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -57,7 +62,8 @@
  * Every text pairing meets WCAG 2.2 AA (≥ 4.5:1) and every chart colour meets
  * the 3:1 non-text minimum against the card surface, in both themes.
  */
-:root {
+:root,
+.light-scope {
   --background: oklch(0.975 0.003 264);
   --foreground: oklch(0.21 0.02 264);
   --card: oklch(1 0 0);
@@ -151,7 +157,10 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     letter-spacing: -0.022em;
   }
 }
@@ -166,7 +175,9 @@
     -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
   .apple-press {
-    transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), opacity 120ms ease;
+    transition:
+      transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 120ms ease;
   }
   .apple-press:active {
     transform: scale(0.975);
@@ -189,5 +200,43 @@
     background-color: var(--background) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+}
+
+/*
+ * Printing a report: only the open report is printed, as plain flowing pages.
+ * Everything else on the page (sidebar, forms, the dialog backdrop) is hidden.
+ */
+@media print {
+  html,
+  html body {
+    color-scheme: light !important;
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  body:has([data-print-report]) > :not(:has([data-print-report])) {
+    display: none !important;
+  }
+  [data-slot="dialog-content"]:has([data-print-report]) {
+    position: static !important;
+    inset: auto !important;
+    /* Undo the dialog's centring translate (Tailwind sets it through these vars). */
+    --tw-translate-x: 0 !important;
+    --tw-translate-y: 0 !important;
+    transform: none !important;
+    max-width: none !important;
+    width: auto !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    animation: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+  }
+  [data-print-report] {
+    padding: 0 !important;
+  }
+  @page {
+    margin: 16mm 14mm;
   }
 }
