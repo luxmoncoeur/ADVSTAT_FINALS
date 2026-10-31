@@ -9,8 +9,11 @@ test.describe("Simple linear regression", () => {
   });
 
   test("computes the sample dataset correctly", async ({ page }) => {
-    await page.getByRole("button", { name: "Load example" }).first().click();
-    await page.getByRole("menuitem", { name: /Study hours/ }).click();
+    await page.getByRole("button", { name: /Datasets/ }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: /Study hours/ })
+      .click();
     // b = 2856 / 1127, a = 77 − b·7.875, r = 0.99928…
     await shows(page, "Ŷ = 57.0435 + 2.5342X");
     await shows(page, "0.9993");
@@ -29,8 +32,11 @@ test.describe("Simple linear regression", () => {
   });
 
   test("switching decimals re-rounds every result", async ({ page }) => {
-    await page.getByRole("button", { name: "Load example" }).first().click();
-    await page.getByRole("menuitem", { name: /Textbook/ }).click();
+    await page.getByRole("button", { name: /Datasets/ }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: /Textbook/ })
+      .click();
     await page.getByRole("combobox", { name: /Decimal places/ }).click();
     await page.getByRole("option", { name: "2" }).click();
     await shows(page, "Ŷ = 2.20 + 0.60X");

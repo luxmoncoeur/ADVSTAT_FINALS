@@ -7,8 +7,11 @@ const PAGES = [
     path: "/regression",
     name: "regression with results",
     prepare: async (page) => {
-      await page.getByRole("button", { name: "Load example" }).first().click();
-      await page.getByRole("menuitem", { name: /Study hours/ }).click();
+      await page.getByRole("button", { name: /Datasets/ }).click();
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: /Study hours/ })
+        .click();
     },
   },
   {

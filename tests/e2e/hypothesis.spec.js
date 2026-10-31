@@ -29,6 +29,18 @@ test.describe("Hypothesis testing", () => {
     });
   }
 
+  test("a scenario card runs the test and explains the verdict", async ({ page }) => {
+    await page.goto("/hypothesis");
+    await page.getByRole("radio", { name: /One proportion/ }).click();
+    // p̂ = 270/500 = 0.54, SE = √(0.25/500), z = 0.04 / 0.022361 = 1.7889
+    await page.getByRole("button", { name: /Is the coin fair/ }).click();
+    await expect(page.getByRole("heading", { name: "Fail to reject H₀" })).toBeVisible();
+    await shows(page, "1.7889");
+    await expect(
+      page.getByText(/1\.7889 standard errors above the value in H₀ \(0\.5\)/),
+    ).toBeVisible();
+  });
+
   test("validates every input", async ({ page }) => {
     await page.goto("/hypothesis");
     await page.getByRole("button", { name: "Compute" }).click();
@@ -52,6 +64,7 @@ test.describe("Hypothesis testing", () => {
     await page.goto("/hypothesis");
     await page.getByRole("button", { name: "Load example" }).click();
     await page.getByRole("button", { name: "Compute" }).click();
+    await page.getByRole("tab", { name: "Z-table value" }).click();
     await expect(page.locator('td[aria-current="true"]')).toHaveText("0.9750");
   });
 });
