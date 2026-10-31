@@ -28,9 +28,7 @@ import { useSettings } from "@/components/providers";
 import Aurora from "@/components/reactbits/Aurora";
 import BlurText from "@/components/reactbits/BlurText";
 import RubberSegment from "@/components/reactbits/RubberSegment";
-import ShinyText from "@/components/reactbits/ShinyText";
 import SpotlightCard from "@/components/reactbits/SpotlightCard";
-import StarBorder from "@/components/reactbits/StarBorder";
 import { AnimatedNumber } from "@/components/shared/animated-number";
 import { NumberField } from "@/components/shared/number-field";
 import { Reveal } from "@/components/shared/reveal";
@@ -49,7 +47,6 @@ import {
   oneMeanZTest,
   parseNumber,
 } from "@/lib/stats";
-import { THEME_HEX } from "@/lib/theme-colors";
 import { cn } from "@/lib/utils";
 
 const AURORA = {
@@ -57,12 +54,7 @@ const AURORA = {
   dark: { colorStops: ["#4f46e5", "#0e7490", "#6d28d9"], blend: 0.55, opacity: 0.55 },
 };
 
-const SEGMENT = {
-  trackColor: "var(--muted)",
-  thumbColor: "var(--card)",
-  textColor: "var(--foreground)",
-  activeTextColor: "var(--foreground)",
-};
+
 
 function useSamples() {
   return useMemo(() => {
@@ -138,12 +130,13 @@ function MiniCurve({ result }) {
           animationDuration={1000}
         />
         <Area
-          dataKey="density"
+          dataKey="z"
           type="linear"
-          stroke="var(--foreground)"
-          strokeWidth={1.75}
-          fill="none"
-          isAnimationActive={false}
+          stroke="none"
+          fill="var(--primary)"
+          fillOpacity={0.7}
+          connectNulls={false}
+          animationDuration={1000}
         />
       </AreaChart>
     </ChartContainer>
@@ -175,26 +168,26 @@ function ModuleCard({
     >
       <Link
         href={href}
-        className="flex h-full flex-col gap-3 rounded-2xl p-4 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-5"
+        className="flex h-full flex-col gap-3 rounded-2xl p-4 outline-none transition-transform duration-120 active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-ring motion-reduce:active:scale-100 sm:p-5"
       >
         <div className="flex items-center gap-3">
           <span
-            className="grid size-9 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[0_6px_18px_-8px_var(--primary)]"
+            className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_4px_14px_-4px_var(--primary)]"
             aria-hidden="true"
           >
             <Icon className="size-4.5" />
           </span>
-          <h2 className="font-semibold tracking-tight">{title}</h2>
-          <Badge variant="secondary" className="ml-auto rounded-full">
+          <h2 className="font-semibold tracking-[-0.015em] text-foreground">{title}</h2>
+          <Badge variant="secondary" className="ml-auto rounded-full font-medium">
             {eyebrow}
           </Badge>
         </div>
         <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-        <div className="flex min-h-32 flex-1 rounded-xl border bg-background/60 p-1.5 [&>[data-slot=chart]]:h-full">
+        <div className="flex min-h-32 flex-1 rounded-xl border border-border/60 bg-background/60 p-1.5 [&>[data-slot=chart]]:h-full">
           {preview}
         </div>
         <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="font-mono text-xs text-muted-foreground">{footer}</span>
+          <span className="font-mono text-xs text-muted-foreground tabular-nums">{footer}</span>
           <span className="flex items-center gap-1 font-medium text-primary">
             Open{" "}
             <ArrowRight
@@ -231,7 +224,6 @@ function CriticalZTool() {
           onChange={setAlpha}
           size="sm"
           className="w-full font-mono"
-          {...SEGMENT}
         />
         <RubberSegment
           aria-label="Tail"
@@ -244,14 +236,13 @@ function CriticalZTool() {
           onChange={setTail}
           size="sm"
           className="w-full"
-          {...SEGMENT}
         />
         <p className="pt-1 font-mono text-2xl font-semibold tracking-tight" aria-live="polite">
           z = {tail === "two" ? "±" : ""}
           <AnimatedNumber
             value={tail === "two" ? Math.abs(value) : value}
             decimals={decimals}
-            duration={0.5}
+            duration={0.4}
           />
         </p>
       </CardContent>
@@ -315,14 +306,13 @@ const FEATURES = [
 
 export function Dashboard() {
   const theme = useResolvedTheme();
-  const colors = THEME_HEX[theme];
   const { decimals } = useSettings();
   const { regression, ztest } = useSamples();
 
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-4 p-4 sm:p-6">
       <section
-        className="relative isolate overflow-hidden rounded-2xl border bg-card"
+        className="relative isolate overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_2px_16px_-4px_rgba(0,0,0,0.04)] dark:border-white/10 dark:shadow-[0_4px_24px_-6px_rgba(0,0,0,0.35)]"
         aria-labelledby="hero-title"
       >
         <div className="absolute inset-0 -z-10" aria-hidden="true">
@@ -335,11 +325,7 @@ export function Dashboard() {
           />
         </div>
         <div
-          className="absolute inset-0 -z-10 bg-gradient-to-r from-card via-card/80 to-card/30"
-          aria-hidden="true"
-        />
-        <div
-          className="bg-grid absolute inset-0 -z-10 [mask-image:linear-gradient(to_right,transparent,black_70%)] opacity-50"
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-card via-card/85 to-card/40"
           aria-hidden="true"
         />
 
@@ -347,21 +333,16 @@ export function Dashboard() {
           <div className="max-w-2xl space-y-3">
             <Badge
               variant="outline"
-              className="gap-1.5 rounded-full bg-card/80 px-3 py-1 backdrop-blur"
+              className="gap-1.5 rounded-full border-border/60 bg-card/80 px-3 py-1 backdrop-blur-md"
             >
-              <Sigma className="size-3.5" aria-hidden="true" />
-              <ShinyText
-                text="ADVSTAT · Statistics Lab"
-                color={colors.foreground}
-                shineColor={colors.primary}
-                speed={3}
-                delay={3}
-                className="text-xs font-medium"
-              />
+              <Sigma className="size-3.5 text-primary" aria-hidden="true" />
+              <span className="text-xs font-semibold tracking-tight text-foreground">
+                ADVSTAT · Statistics Lab
+              </span>
             </Badge>
             <h1
               id="hero-title"
-              className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+              className="text-3xl font-semibold tracking-[-0.025em] text-balance text-foreground sm:text-4xl"
             >
               <span className="sr-only">Statistics, solved step by step.</span>
               <span aria-hidden="true">
@@ -377,24 +358,19 @@ export function Dashboard() {
               Regression and z-tests with your own data, a clear verdict, and every formula worked
               out.
             </p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              <StarBorder
-                as={Link}
-                href="/regression"
-                theme={theme}
-                color={theme === "dark" ? "#ffffff" : colors.primary}
-                backgroundColor="var(--primary)"
-                textColor="var(--primary-foreground)"
-                borderColor="color-mix(in oklch, var(--primary) 70%, transparent)"
-                radius={10}
-                className="gap-2 px-4 py-2.5 text-sm font-semibold"
+            <div className="flex flex-wrap gap-2.5 pt-1">
+              <Button
+                asChild
+                className="h-auto rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_4px_14px_-4px_var(--primary)] hover:bg-primary/90"
               >
-                <ChartScatter className="size-4" aria-hidden="true" /> Linear regression
-              </StarBorder>
+                <Link href="/regression">
+                  <ChartScatter className="size-4" aria-hidden="true" /> Linear regression
+                </Link>
+              </Button>
               <Button
                 asChild
                 variant="outline"
-                className="h-auto rounded-[10px] bg-card/80 px-4 py-2.5 backdrop-blur"
+                className="h-auto rounded-xl border-border/80 bg-card/80 px-4 py-2.5 backdrop-blur-md hover:bg-muted/70"
               >
                 <Link href="/hypothesis">
                   <FlaskConical className="size-4" aria-hidden="true" /> Hypothesis test
@@ -402,7 +378,7 @@ export function Dashboard() {
               </Button>
             </div>
           </div>
-          <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
+          <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-2">
             {[
               ["Sample r", <AnimatedNumber key="r" value={regression.r} decimals={decimals} />],
               [
@@ -417,10 +393,12 @@ export function Dashboard() {
             ].map(([label, value]) => (
               <div
                 key={String(label)}
-                className="min-w-[8.5rem] rounded-xl border bg-card/80 px-3.5 py-2.5 backdrop-blur"
+                className="min-w-[8.5rem] rounded-xl border border-border/60 bg-card/85 px-3.5 py-2.5 shadow-xs backdrop-blur-md dark:border-white/10"
               >
-                <dt className="text-xs text-muted-foreground">{label}</dt>
-                <dd className="mt-0.5 font-mono text-xl font-semibold tracking-tight">{value}</dd>
+                <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
+                <dd className="mt-0.5 font-mono text-xl font-semibold tracking-tight tabular-nums text-foreground">
+                  {value}
+                </dd>
               </div>
             ))}
           </dl>
@@ -466,21 +444,21 @@ export function Dashboard() {
         {FEATURES.map((feature) => (
           <div
             key={feature.title}
-            className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3"
+            className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-xs"
           >
             <feature.icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
             <p className="text-sm">
-              <span className="font-medium">{feature.title}.</span>{" "}
+              <span className="font-semibold text-foreground">{feature.title}.</span>{" "}
               <span className="text-muted-foreground">{feature.text}</span>
             </p>
           </div>
         ))}
         <Link
           href="/learn"
-          className="group flex items-center gap-3 rounded-xl border border-dashed px-4 py-3 transition-colors hover:border-primary/60 hover:bg-accent/40"
+          className="group flex items-center gap-3 rounded-2xl border border-dashed border-border/80 px-4 py-3 transition-all duration-120 hover:border-primary/60 hover:bg-accent/40 active:scale-[0.985] motion-reduce:active:scale-100"
         >
           <BookOpenText className="size-5 shrink-0 text-primary" aria-hidden="true" />
-          <span className="text-sm font-medium">Formulas & z-table</span>
+          <span className="text-sm font-semibold text-foreground">Formulas & z-table</span>
           <ArrowRight
             className="ml-auto size-4 text-primary transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
             aria-hidden="true"

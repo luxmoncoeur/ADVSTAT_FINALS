@@ -52,7 +52,7 @@ export function DataTableEditor({
               <th scope="col" className="px-1.5 py-1.5">
                 {labels.y || "Y"} <span className="font-mono">(Y)</span>
               </th>
-              <th scope="col" className="w-9 px-1 py-1.5">
+              <th scope="col" className="w-10 px-1 py-1.5 text-center">
                 <span className="sr-only">Remove</span>
               </th>
             </tr>
@@ -80,7 +80,7 @@ export function DataTableEditor({
                         title={rowErrors?.[column]}
                         placeholder="—"
                         className={cn(
-                          "h-8 font-mono text-sm tabular-nums",
+                          "h-8 min-h-[32px] font-mono text-sm tabular-nums",
                           rowErrors?.[column] && "border-destructive",
                         )}
                       />
@@ -90,7 +90,7 @@ export function DataTableEditor({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 text-muted-foreground hover:text-destructive"
+                      className="size-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-destructive touch-manipulation"
                       onClick={() => onRemoveRow(row.id)}
                       disabled={rows.length === 1}
                       aria-label={`Remove row ${index + 1}`}

@@ -1,12 +1,11 @@
 "use client";
 
-import { Calculator } from "lucide-react";
-import ClickSpark from "@/components/reactbits/ClickSpark";
-import StarBorder from "@/components/reactbits/StarBorder";
-import { useResolvedTheme } from "@/hooks/use-resolved-theme";
-import { THEME_HEX } from "@/lib/theme-colors";
+import { Button } from "@/components/ui/button";
 
-/** Primary "Compute" action: a star tracing the border (StarBorder) + click sparks (ClickSpark). */
+/**
+ * Primary "Compute" action button with Apple tactile response.
+ * Compact, proportional, and fits cleanly into card footers.
+ */
 export function ComputeButton({
   onClick,
   children = "Compute",
@@ -14,33 +13,14 @@ export function ComputeButton({
   className = "",
   type = "button",
 }) {
-  const theme = useResolvedTheme();
-  const colors = THEME_HEX[theme];
   return (
-    <ClickSpark
-      sparkColor={colors.primary}
-      sparkCount={10}
-      sparkRadius={26}
-      sparkSize={9}
-      duration={450}
-      className={`inline-flex ${className}`}
+    <Button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`h-8 w-auto shrink-0 rounded-[10px] bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 active:scale-[0.97] transition-all motion-reduce:active:scale-100 ${className}`}
     >
-      <StarBorder
-        type={type}
-        onClick={onClick}
-        disabled={disabled}
-        theme={theme}
-        color={theme === "dark" ? "#ffffff" : colors.primary}
-        backgroundColor="var(--primary)"
-        textColor="var(--primary-foreground)"
-        borderColor="color-mix(in oklch, var(--primary) 70%, transparent)"
-        radius={10}
-        duration={3.5}
-        className="w-full gap-2 px-5 py-2.5 text-sm font-semibold shadow-[0_8px_24px_-10px_var(--primary)] transition-transform active:scale-[0.98]"
-      >
-        <Calculator className="size-4" aria-hidden="true" />
-        {children}
-      </StarBorder>
-    </ClickSpark>
+      {children}
+    </Button>
   );
 }

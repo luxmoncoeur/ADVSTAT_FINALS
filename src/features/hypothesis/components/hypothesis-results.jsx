@@ -190,7 +190,7 @@ export function ZTestDetails({ result }) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4 rounded-lg border-l-4 border-primary bg-accent/40 px-4 py-3 text-sm leading-relaxed sm:text-base">
+            <p className="mb-4 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3.5 text-sm leading-relaxed text-foreground sm:text-base">
               {result.conclusion}
             </p>
             <Tabs defaultValue="steps">

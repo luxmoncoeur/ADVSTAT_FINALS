@@ -1,28 +1,38 @@
 "use client";
 
-import AnimatedContent from "@/components/reactbits/AnimatedContent";
+import { motion, useReducedMotion } from "motion/react";
 
-/** Scroll-triggered entrance (React Bits AnimatedContent). Skipped under reduced motion. */
+/**
+ * Scroll-triggered entrance using Apple-calibrated critically damped spring:
+ * Damping ratio 1.0 (bounce 0), Response 0.4s (WWDC 2018 Fluid Interfaces).
+ * Smooth, natural arrival with zero oscillation.
+ */
 export function Reveal({
   children,
   delay = 0,
-  distance = 28,
+  distance = 18,
   className = "",
-  blur = 6,
-  stagger = 0,
 }) {
+  const reduce = useReducedMotion();
+
+  if (reduce) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
-    <AnimatedContent
-      distance={distance}
-      duration={0.7}
-      ease="power3.out"
-      blur={blur}
-      delay={delay}
-      stagger={stagger}
-      threshold={0.08}
+    <motion.div
+      initial={{ opacity: 0, y: distance }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.08 }}
+      transition={{
+        type: "spring",
+        bounce: 0,
+        duration: 0.4,
+        delay,
+      }}
       className={className}
     >
       {children}
-    </AnimatedContent>
+    </motion.div>
   );
 }
