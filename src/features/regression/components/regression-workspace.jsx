@@ -6,7 +6,6 @@ import {
   Eraser,
   FlaskConical,
   RefreshCw,
-  Sparkles,
   Table2,
   Upload,
 } from "lucide-react";
@@ -18,69 +17,33 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { REGRESSION_EXAMPLES } from "../examples";
 import { useRegression } from "../hooks/use-regression";
 import { DataTableEditor } from "./data-table-editor";
+import { DatasetDialog, DatasetGrid } from "./dataset-gallery";
 import { PastePanel, UploadPanel } from "./import-panels";
-import { RegressionDetails, RegressionKpis, RegressionSolution } from "./regression-results";
+import { RegressionKpis, RegressionSolution, RegressionVisuals } from "./regression-results";
 
-function ExamplesMenu({ onPick, variant = "outline" }) {
+function StartPanel({ onPick }) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant={variant} size="sm">
-          <Sparkles className="size-4" aria-hidden="true" /> Load example
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-64">
-        <DropdownMenuLabel>Sample datasets</DropdownMenuLabel>
-        {REGRESSION_EXAMPLES.map((example) => (
-          <DropdownMenuItem key={example.id} onSelect={() => onPick(example)}>
-            <span className="flex flex-col">
-              <span>{example.name}</span>
-              <span className="text-xs text-muted-foreground">{example.x.length} points</span>
-            </span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function EmptyState({ onPick }) {
-  return (
-    <Card className="relative overflow-hidden">
-      <div
-        className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
-        aria-hidden="true"
-      />
-      <CardContent className="relative flex flex-col items-center gap-4 py-16 text-center">
-        <span className="grid size-14 place-items-center rounded-2xl bg-accent text-accent-foreground shadow-sm">
-          <ChartScatter className="size-6" aria-hidden="true" />
-        </span>
-        <div className="space-y-1.5">
-          <h2 className="text-lg font-semibold">No results yet</h2>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            Enter at least two (X, Y) pairs and press{" "}
-            <strong className="text-foreground">Compute</strong>, or start from a sample dataset.
-          </p>
-        </div>
-        <ExamplesMenu onPick={onPick} variant="default" />
+    <Card className="gap-4">
+      <CardHeader>
+        <CardTitle>Start with a dataset</CardTitle>
+        <CardDescription>
+          Pick a sample to see a full worked example, or type your own data on the left and press
+          Compute.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <DatasetGrid onPick={onPick} columns="sm:grid-cols-2 2xl:grid-cols-3" />
       </CardContent>
     </Card>
   );
@@ -94,27 +57,33 @@ export function RegressionWorkspace() {
     regression.loadData(example.x, example.y, { x: example.xLabel, y: example.yLabel });
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-[1600px] space-y-5 p-4 sm:p-6">
       <PageHeader
         eyebrow="Module 1"
         icon={ChartScatter}
         title="Simple Linear Regression"
-        description="Find the regression equation Ŷ = a + bX, the correlation coefficient r, and how strong the relationship is, with every step of the solution shown."
+        description="Enter paired X and Y values to get the regression equation Ŷ = a + bX, the correlation coefficient r, and the strength of the relationship, with every step shown."
       />
 
-      <div className="grid items-start gap-6 xl:grid-cols-12">
-        <Reveal className="xl:col-span-5" distance={20}>
-          <Card>
-            <CardHeader>
+      <div className="grid items-start gap-4 xl:grid-cols-12">
+        <Reveal className="xl:col-span-4" distance={16}>
+          <Card className="gap-4 py-4">
+            <CardHeader className="px-4">
               <CardTitle>Data</CardTitle>
-              <CardDescription>Type, paste or upload paired observations.</CardDescription>
+              <CardDescription>Type, paste or upload pairs.</CardDescription>
+              <CardAction>
+                <DatasetDialog onPick={pickExample} />
+              </CardAction>
             </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="grid gap-3 sm:grid-cols-2">
+            <CardContent className="space-y-3 px-4">
+              <div className="grid grid-cols-2 gap-2">
                 {["x", "y"].map((key) => (
-                  <div key={key} className="grid gap-1.5">
-                    <label htmlFor={`label-${key}`} className="text-sm font-medium">
-                      {key === "x" ? "Independent variable (X)" : "Dependent variable (Y)"}
+                  <div key={key} className="grid gap-1">
+                    <label
+                      htmlFor={`label-${key}`}
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      {key === "x" ? "X variable (independent)" : "Y variable (dependent)"}
                     </label>
                     <Input
                       id={`label-${key}`}
@@ -124,23 +93,24 @@ export function RegressionWorkspace() {
                         regression.setLabels({ ...labels, [key]: event.target.value })
                       }
                       placeholder={key === "x" ? "e.g. Hours studied" : "e.g. Exam score"}
+                      className="h-8 text-sm"
                     />
                   </div>
                 ))}
               </div>
-              <Tabs defaultValue="table">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="table">
-                    <Table2 className="size-4" aria-hidden="true" /> Table
+              <Tabs defaultValue="table" className="gap-3">
+                <TabsList className="grid h-8 w-full grid-cols-3">
+                  <TabsTrigger value="table" className="text-xs">
+                    <Table2 className="size-3.5" aria-hidden="true" /> Table
                   </TabsTrigger>
-                  <TabsTrigger value="paste">
-                    <ClipboardPaste className="size-4" aria-hidden="true" /> Paste
+                  <TabsTrigger value="paste" className="text-xs">
+                    <ClipboardPaste className="size-3.5" aria-hidden="true" /> Paste
                   </TabsTrigger>
-                  <TabsTrigger value="upload">
-                    <Upload className="size-4" aria-hidden="true" /> CSV
+                  <TabsTrigger value="upload" className="text-xs">
+                    <Upload className="size-3.5" aria-hidden="true" /> CSV
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="table" className="pt-3">
+                <TabsContent value="table">
                   <DataTableEditor
                     rows={regression.rows}
                     labels={labels}
@@ -151,36 +121,27 @@ export function RegressionWorkspace() {
                     onRemoveRow={regression.removeRow}
                   />
                 </TabsContent>
-                <TabsContent value="paste" className="pt-3">
+                <TabsContent value="paste">
                   <PastePanel onLoad={regression.loadData} />
                 </TabsContent>
-                <TabsContent value="upload" className="pt-3">
+                <TabsContent value="upload">
                   <UploadPanel onLoad={regression.loadData} />
                 </TabsContent>
               </Tabs>
             </CardContent>
-            <CardFooter className="flex flex-col gap-3 border-t sm:flex-row sm:items-center">
-              <div className="flex w-full items-center gap-2 sm:w-auto">
-                <ExamplesMenu onPick={pickExample} />
-                <Button variant="ghost" size="sm" onClick={regression.clear}>
-                  <Eraser className="size-4" aria-hidden="true" /> Clear
-                </Button>
-                <Badge variant="outline" className="ml-auto font-mono tabular-nums sm:hidden">
-                  n = {parsed.xs.length}
-                </Badge>
-              </div>
-              <Badge
-                variant="outline"
-                className="hidden font-mono tabular-nums sm:ml-auto sm:inline-flex"
-              >
+            <CardFooter className="gap-2 border-t px-4 pt-4">
+              <Button variant="ghost" size="sm" onClick={regression.clear}>
+                <Eraser className="size-4" aria-hidden="true" /> Clear
+              </Button>
+              <Badge variant="outline" className="font-mono tabular-nums">
                 n = {parsed.xs.length}
               </Badge>
-              <ComputeButton onClick={regression.compute} className="w-full sm:w-auto" />
+              <ComputeButton onClick={regression.compute} className="ml-auto" />
             </CardFooter>
           </Card>
         </Reveal>
 
-        <div className="space-y-6 xl:col-span-7" aria-live="polite">
+        <div className="min-w-0 space-y-4 xl:col-span-8" aria-live="polite">
           {stale && result ? (
             <Alert>
               <RefreshCw aria-hidden="true" />
@@ -198,10 +159,10 @@ export function RegressionWorkspace() {
           {result ? (
             <>
               <RegressionKpis result={result} />
-              <RegressionDetails result={result} labels={labels} />
+              <RegressionVisuals result={result} labels={labels} />
             </>
           ) : (
-            <EmptyState onPick={pickExample} />
+            <StartPanel onPick={pickExample} />
           )}
         </div>
       </div>

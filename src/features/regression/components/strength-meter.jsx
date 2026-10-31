@@ -19,7 +19,7 @@ export function StrengthMeter({ r, strength, direction }) {
   const position = ((r + 1) / 2) * 100;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div
         role="img"
         aria-label={`Correlation coefficient r = ${formatNumber(r, decimals)} on a scale from −1 to +1: ${strength.toLowerCase()} ${direction === "none" ? "" : direction} relationship.`}
@@ -54,27 +54,22 @@ export function StrengthMeter({ r, strength, direction }) {
           </motion.div>
         </div>
         <div
-          className="relative mt-2 h-4 font-mono text-[10px] text-muted-foreground sm:text-xs"
+          className="mt-2 flex justify-between text-[11px] text-muted-foreground"
           aria-hidden="true"
         >
-          {TICKS.map((tick) => (
-            <span
-              key={tick}
-              className="absolute -translate-x-1/2 tabular-nums"
-              style={{ left: `${((tick + 1) / 2) * 100}%` }}
-            >
-              {tick === 0 ? "0" : tick > 0 ? `+${tick}` : `−${Math.abs(tick)}`}
-            </span>
-          ))}
-        </div>
-        <div className="mt-1 flex justify-between text-xs text-muted-foreground" aria-hidden="true">
-          <span>Negative</span>
-          <span>None</span>
-          <span>Positive</span>
+          <span>
+            <span className="font-mono">−1</span> Negative
+          </span>
+          <span>
+            <span className="font-mono">0</span> None
+          </span>
+          <span>
+            Positive <span className="font-mono">+1</span>
+          </span>
         </div>
       </div>
 
-      <table className="w-full text-sm">
+      <table className="w-full text-xs">
         <caption className="sr-only">Interpretation scale for the correlation coefficient</caption>
         <thead>
           <tr className="text-left text-xs text-muted-foreground">
@@ -98,8 +93,10 @@ export function StrengthMeter({ r, strength, direction }) {
                 )}
                 aria-current={active ? "true" : undefined}
               >
-                <td className="py-1.5 pr-3 pl-2 font-mono text-xs tabular-nums">{band.range}</td>
-                <td className="py-1.5 pr-2 font-medium">
+                <td className="py-1 pr-2 pl-2 font-mono text-[11px] whitespace-nowrap tabular-nums">
+                  {band.range}
+                </td>
+                <td className="py-1 pr-2 font-medium">
                   {band.label}
                   {active ? <span className="sr-only"> (this result)</span> : null}
                 </td>

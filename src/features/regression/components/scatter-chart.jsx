@@ -1,7 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import { CartesianGrid, ComposedChart, Line, ReferenceLine, Scatter, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ReferenceDot,
+  ReferenceLine,
+  Scatter,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useSettings } from "@/components/providers";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { downsample, formatTick, niceScale } from "@/lib/chart-utils";
@@ -31,10 +40,11 @@ function PointTooltip({ active, payload, labels, decimals }) {
 }
 
 /**
- * Scatter diagram with the least-squares regression line.
- * @param {{ result: import('@/lib/stats/regression').RegressionResult, labels: { x: string, y: string }, showResiduals: boolean }} props
+ * Scatter diagram with the least-squares regression line, optional residual
+ * segments and an optional (X̄, Ȳ) crosshair.
+ * @param {{ result: import('@/lib/stats/regression').RegressionResult, labels: { x: string, y: string }, showResiduals: boolean, showMeans: boolean }} props
  */
-export function RegressionScatterChart({ result, labels, showResiduals }) {
+export function RegressionScatterChart({ result, labels, showResiduals, showMeans }) {
   const { decimals } = useSettings();
   const { points, line, xScale, yScale } = useMemo(() => {
     const all = result.rows.map((row, index) => ({
@@ -66,12 +76,12 @@ export function RegressionScatterChart({ result, labels, showResiduals }) {
     <figure className="space-y-2">
       <ChartContainer
         config={config}
-        className="aspect-auto h-[300px] w-full sm:h-[360px]"
+        className="aspect-auto h-[280px] w-full sm:h-[340px]"
         role="img"
         aria-label={`Scatter diagram of ${result.n} points of ${labels.y} against ${labels.x}, with the regression line Ŷ = ${formatNumber(result.intercept, decimals)} + ${formatNumber(result.slope, decimals)}X.`}
       >
-        <ComposedChart margin={{ top: 12, right: 16, bottom: 28, left: 4 }} accessibilityLayer>
-          <CartesianGrid strokeDasharray="4 4" />
+        <ComposedChart margin={{ top: 10, right: 12, bottom: 26, left: 4 }} accessibilityLayer>
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             type="number"
             dataKey="x"
@@ -79,13 +89,13 @@ export function RegressionScatterChart({ result, labels, showResiduals }) {
             ticks={xScale.ticks}
             tickFormatter={formatTick}
             tickLine={false}
-            axisLine={false}
+            axisLine={{ stroke: "var(--border)" }}
             tickMargin={8}
             allowDataOverflow
             label={{
               value: labels.x,
               position: "insideBottom",
-              offset: -18,
+              offset: -16,
               className: "fill-muted-foreground text-xs",
             }}
           />
@@ -96,7 +106,7 @@ export function RegressionScatterChart({ result, labels, showResiduals }) {
             ticks={yScale.ticks}
             tickFormatter={formatTick}
             tickLine={false}
-            axisLine={false}
+            axisLine={{ stroke: "var(--border)" }}
             width={56}
             allowDataOverflow
             label={{
@@ -111,6 +121,34 @@ export function RegressionScatterChart({ result, labels, showResiduals }) {
             cursor={{ strokeDasharray: "3 3" }}
             content={<PointTooltip labels={labels} decimals={decimals} />}
           />
+          {showMeans ? (
+            <>
+              <ReferenceLine
+                x={result.meanX}
+                stroke="var(--muted-foreground)"
+                strokeDasharray="2 4"
+              />
+              <ReferenceLine
+                y={result.meanY}
+                stroke="var(--muted-foreground)"
+                strokeDasharray="2 4"
+              />
+              <ReferenceDot
+                x={result.meanX}
+                y={result.meanY}
+                r={5}
+                fill="var(--card)"
+                stroke="var(--foreground)"
+                strokeWidth={2}
+                label={{
+                  value: "(X̄, Ȳ)",
+                  position: "top",
+                  offset: 10,
+                  className: "fill-foreground font-mono text-[11px]",
+                }}
+              />
+            </>
+          ) : null}
           {showResiduals
             ? points.slice(0, MAX_RESIDUAL_LINES).map((p) => (
                 <ReferenceLine
@@ -134,7 +172,6 @@ export function RegressionScatterChart({ result, labels, showResiduals }) {
             strokeWidth={2.5}
             dot={false}
             activeDot={false}
-            isAnimationActive
             animationDuration={900}
           />
           <Scatter
@@ -143,24 +180,27 @@ export function RegressionScatterChart({ result, labels, showResiduals }) {
             fill="var(--color-points)"
             stroke="var(--card)"
             strokeWidth={1.5}
-            isAnimationActive
             animationDuration={700}
           />
         </ComposedChart>
       </ChartContainer>
       <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-full bg-chart-1" aria-hidden="true" /> Observed (
-          {labels.x}, {labels.y})
+          <span className="size-2.5 rounded-full bg-chart-1" aria-hidden="true" /> Observed points
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 rounded bg-chart-3" aria-hidden="true" /> Regression line Ŷ = a
-          + bX
+          <span className="h-0.5 w-4 rounded bg-chart-3" aria-hidden="true" /> Ŷ = a + bX
         </span>
         {showResiduals ? (
           <span className="flex items-center gap-1.5">
             <span className="h-3 w-0 border-l-2 border-dashed border-chart-5" aria-hidden="true" />{" "}
             Residual (Y − Ŷ)
+          </span>
+        ) : null}
+        {showMeans ? (
+          <span className="font-mono">
+            (X̄, Ȳ) = ({formatNumber(result.meanX, decimals)}, {formatNumber(result.meanY, decimals)}
+            )
           </span>
         ) : null}
         {result.n > MAX_DRAWN_POINTS ? (

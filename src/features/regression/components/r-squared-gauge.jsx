@@ -17,7 +17,7 @@ export function RSquaredGauge({ rSquared, yLabel }) {
   return (
     <ChartContainer
       config={{ explained: { label: "Explained", color: "var(--chart-4)" } }}
-      className="mx-auto aspect-square w-full max-w-[220px]"
+      className="mx-auto aspect-square w-full max-w-[170px]"
       role="img"
       aria-label={`r squared: ${percent} of the variation in ${yLabel} is explained.`}
     >

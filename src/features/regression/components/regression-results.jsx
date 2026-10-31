@@ -35,7 +35,7 @@ export function equationText(intercept, slope, decimals) {
   return `Ŷ = ${formatNumber(intercept, decimals, { fixed: true })} ${sign} ${formatNumber(Math.abs(slope), decimals, { fixed: true })}X`;
 }
 
-/** Top KPI row: equation, r, r², strength. */
+/** One-row KPI strip: equation (wide), r, r², strength. */
 export function RegressionKpis({ result }) {
   const { decimals } = useSettings();
   const equation = equationText(result.intercept, result.slope, decimals);
@@ -45,18 +45,24 @@ export function RegressionKpis({ result }) {
       : result.direction === "negative"
         ? TrendingDown
         : Minus;
+  const strengthText =
+    result.strength === null
+      ? "Not defined"
+      : result.strength === "None"
+        ? "No linear relationship"
+        : `${result.strength} ${result.direction}`;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-6 2xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]">
       <ResultCard
         label="Regression equation"
         icon={Sigma}
-        className="sm:col-span-2"
-        valueClassName="text-xl sm:text-2xl"
+        className="col-span-2 sm:col-span-4 2xl:col-span-1"
+        valueClassName="text-lg sm:text-xl"
         hint={
           <span className="font-mono">
-            a (intercept) = {formatNumber(result.intercept, decimals, { fixed: true })} · b (slope)
-            = {formatNumber(result.slope, decimals, { fixed: true })}
+            a = {formatNumber(result.intercept, decimals, { fixed: true })} · b ={" "}
+            {formatNumber(result.slope, decimals, { fixed: true })}
           </span>
         }
       >
@@ -67,27 +73,39 @@ export function RegressionKpis({ result }) {
             text={equation}
             animateOn="view"
             sequential
-            speed={28}
+            speed={24}
             revealDirection="start"
-            useOriginalCharsOnly={false}
             characters="0123456789.+−XŶ"
           />
         </span>
       </ResultCard>
       <ResultCard
-        label="Correlation coefficient (r)"
+        label="Strength"
+        icon={DirectionIcon}
+        className="col-span-2 sm:col-span-2 2xl:col-span-1"
+        valueClassName="font-sans text-lg"
+        hint="From |r| on the scale"
+      >
+        {strengthText}
+      </ResultCard>
+      <ResultCard
+        label="Correlation (r)"
+        className="sm:col-span-3 2xl:col-span-1"
         icon={Activity}
-        hint={result.r === null ? "Undefined: all Y values are equal" : "Ranges from −1 to +1"}
+        valueClassName="text-xl"
+        hint={result.r === null ? "All Y values are equal" : "−1 ≤ r ≤ +1"}
       >
         {result.r === null ? "Undefined" : <AnimatedNumber value={result.r} decimals={decimals} />}
       </ResultCard>
       <ResultCard
-        label="Coefficient of determination (r²)"
+        label="Determination (r²)"
+        className="sm:col-span-3 2xl:col-span-1"
         icon={Gauge}
+        valueClassName="text-xl"
         hint={
           result.rSquared === null
             ? "—"
-            : `${formatPercent(result.rSquared, decimals)} of the variation in Y is explained`
+            : `${formatPercent(result.rSquared, decimals)} of variation explained`
         }
       >
         {result.rSquared === null ? (
@@ -96,33 +114,29 @@ export function RegressionKpis({ result }) {
           <AnimatedNumber value={result.rSquared} decimals={decimals} />
         )}
       </ResultCard>
-      <ResultCard
-        label="Strength of relationship"
-        icon={DirectionIcon}
-        className="sm:col-span-2"
-        valueClassName="font-sans text-xl sm:text-2xl"
-        hint={
-          result.r === null
-            ? "r is undefined when Y does not vary."
-            : "Based on |r| using the interpretation scale below."
-        }
-      >
-        {result.strength === null
-          ? "Not defined"
-          : result.strength === "None"
-            ? "No linear relationship"
-            : `${result.strength} ${result.direction}`}
-      </ResultCard>
     </div>
   );
 }
 
-/** Everything below the KPI row once a regression has been computed. */
-export function RegressionDetails({ result, labels }) {
+function ChartToggle({ id, label, checked, onChange }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Switch id={id} checked={checked} onCheckedChange={onChange} />
+      <Label htmlFor={id} className="text-xs font-normal text-muted-foreground">
+        {label}
+      </Label>
+    </div>
+  );
+}
+
+/** Charts card: Scatter / Residuals tabs, with strength and r² beside the chart. */
+export function RegressionVisuals({ result, labels }) {
   const [showResiduals, setShowResiduals] = useState(false);
+  const [showMeans, setShowMeans] = useState(false);
+  const [tab, setTab] = useState("scatter");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {result.warnings.length > 0 ? (
         <Alert>
           <AlertTitle>Note</AlertTitle>
@@ -133,77 +147,97 @@ export function RegressionDetails({ result, labels }) {
           </AlertDescription>
         </Alert>
       ) : null}
-
       <Reveal>
-        <Card>
-          <CardHeader>
-            <CardTitle>Scatter diagram</CardTitle>
-            <CardDescription>
-              Each point is one observation; the line is the least-squares fit Ŷ = a + bX.
-            </CardDescription>
-            <CardAction>
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="show-residuals"
-                  checked={showResiduals}
-                  onCheckedChange={setShowResiduals}
-                />
-                <Label
-                  htmlFor="show-residuals"
-                  className="text-xs font-normal text-muted-foreground"
-                >
-                  Residuals
-                </Label>
+        <Card className="gap-4">
+          <Tabs value={tab} onValueChange={setTab} className="gap-4">
+            <CardHeader>
+              <CardTitle>Visualize</CardTitle>
+              <CardDescription>
+                {tab === "scatter"
+                  ? "Each point is one observation; the line is the least-squares fit."
+                  : "How far each actual Y is from the predicted Ŷ."}
+              </CardDescription>
+              <CardAction>
+                <TabsList className="h-8">
+                  <TabsTrigger value="scatter" className="text-xs">
+                    Scatter
+                  </TabsTrigger>
+                  <TabsTrigger value="residuals" className="text-xs">
+                    Residuals
+                  </TabsTrigger>
+                </TabsList>
+              </CardAction>
+            </CardHeader>
+            <CardContent className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
+              <div className="min-w-0 space-y-3">
+                <TabsContent value="scatter" className="space-y-3">
+                  <div className="flex flex-wrap gap-x-5 gap-y-2">
+                    <ChartToggle
+                      id="toggle-residuals"
+                      label="Residual lines"
+                      checked={showResiduals}
+                      onChange={setShowResiduals}
+                    />
+                    <ChartToggle
+                      id="toggle-means"
+                      label="Mean point (X̄, Ȳ)"
+                      checked={showMeans}
+                      onChange={setShowMeans}
+                    />
+                  </div>
+                  <RegressionScatterChart
+                    result={result}
+                    labels={labels}
+                    showResiduals={showResiduals}
+                    showMeans={showMeans}
+                  />
+                </TabsContent>
+                <TabsContent value="residuals">
+                  <ResidualChart result={result} />
+                </TabsContent>
               </div>
-            </CardAction>
-          </CardHeader>
-          <CardContent>
-            <RegressionScatterChart result={result} labels={labels} showResiduals={showResiduals} />
-          </CardContent>
+              <aside
+                className="space-y-5 border-t pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6"
+                aria-label="Strength of relationship"
+              >
+                {result.r !== null && result.rSquared !== null ? (
+                  <>
+                    <div>
+                      <p className="text-sm font-medium">Strength of relationship</p>
+                      <StrengthMeter
+                        r={result.r}
+                        strength={result.strength ?? "None"}
+                        direction={result.direction}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Variation explained (r²)</p>
+                      <RSquaredGauge rSquared={result.rSquared} yLabel={labels.y} />
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    r is undefined because every Y value is the same.
+                  </p>
+                )}
+              </aside>
+            </CardContent>
+          </Tabs>
         </Card>
       </Reveal>
-
-      {result.r !== null && result.rSquared !== null ? (
-        <Reveal className="grid gap-6 md:grid-cols-5">
-          <Card className="md:col-span-3">
-            <CardHeader>
-              <CardTitle>Strength of relationship</CardTitle>
-              <CardDescription>Where r falls on the −1 to +1 scale.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <StrengthMeter
-                r={result.r}
-                strength={result.strength ?? "None"}
-                direction={result.direction}
-              />
-            </CardContent>
-          </Card>
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>Variation explained</CardTitle>
-              <CardDescription>r² as a share of the total variation in {labels.y}.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-1 items-center">
-              <RSquaredGauge rSquared={result.rSquared} yLabel={labels.y} />
-            </CardContent>
-          </Card>
-        </Reveal>
-      ) : null}
     </div>
   );
 }
 
-/** Full-width section: solution, table, residuals, prediction, interpretation. */
+/** Below the charts: worked solution beside the interpretation and prediction. */
 export function RegressionSolution({ result, labels }) {
   return (
-    <div className="space-y-6">
-      <Reveal>
+    <div className="grid items-start gap-4 xl:grid-cols-12">
+      <Reveal className="xl:col-span-7">
         <Card>
           <CardHeader>
             <CardTitle>Step-by-step solution</CardTitle>
-            <CardDescription>
-              The same steps you would follow by hand, with your data substituted into each formula.
-            </CardDescription>
+            <CardDescription>Each formula with your data substituted.</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="steps">
@@ -221,41 +255,32 @@ export function RegressionSolution({ result, labels }) {
           </CardContent>
         </Card>
       </Reveal>
-
-      <Reveal className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Residuals</CardTitle>
-            <CardDescription>How far each actual Y is from the predicted Ŷ.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResidualChart result={result} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Predict Y</CardTitle>
-            <CardDescription>Use the regression equation.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PredictionCard result={result} labels={labels} />
-          </CardContent>
-        </Card>
-      </Reveal>
-
-      <Reveal>
-        <Card>
-          <CardHeader>
-            <CardTitle>Interpretation</CardTitle>
-            <CardDescription>
-              What the numbers mean for {labels.x} and {labels.y}.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Interpretation result={result} labels={labels} />
-          </CardContent>
-        </Card>
-      </Reveal>
+      <div className="space-y-4 xl:col-span-5">
+        <Reveal>
+          <Card>
+            <CardHeader>
+              <CardTitle>What it means</CardTitle>
+              <CardDescription>
+                {labels.x} and {labels.y} in plain language.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Interpretation result={result} labels={labels} />
+            </CardContent>
+          </Card>
+        </Reveal>
+        <Reveal>
+          <Card>
+            <CardHeader>
+              <CardTitle>Predict {labels.y}</CardTitle>
+              <CardDescription>Plug any X into Ŷ = a + bX.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PredictionCard result={result} labels={labels} />
+            </CardContent>
+          </Card>
+        </Reveal>
+      </div>
     </div>
   );
 }
