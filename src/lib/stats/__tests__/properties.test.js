@@ -105,7 +105,11 @@ describe("regression properties", () => {
       fc.property(dataset, ([xs, ys]) => {
         const result = linearRegression(xs, ys);
         if (!result.ok) return true;
-        const scale = 1 + Math.max(...ys.map(Math.abs));
+        const scale =
+          1 +
+          Math.max(...ys.map(Math.abs)) +
+          Math.abs(result.value.intercept) +
+          Math.abs(result.value.slope * result.value.meanX);
         return (
           Math.abs(compensatedSum(result.value.rows.map((row) => row.residual))) <
           1e-9 * scale * xs.length

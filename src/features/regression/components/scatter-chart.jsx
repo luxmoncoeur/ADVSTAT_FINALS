@@ -3,11 +3,11 @@
 import { useMemo } from "react";
 import {
   CartesianGrid,
-  ComposedChart,
   Line,
   ReferenceDot,
   ReferenceLine,
   Scatter,
+  ScatterChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -80,7 +80,7 @@ export function RegressionScatterChart({ result, labels, showResiduals, showMean
         role="img"
         aria-label={`Scatter diagram of ${result.n} points of ${labels.y} against ${labels.x}, with the regression line Ŷ = ${formatNumber(result.intercept, decimals)} + ${formatNumber(result.slope, decimals)}X.`}
       >
-        <ComposedChart margin={{ top: 10, right: 12, bottom: 26, left: 4 }} accessibilityLayer>
+        <ScatterChart margin={{ top: 10, right: 12, bottom: 26, left: 4 }} accessibilityLayer>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             type="number"
@@ -127,11 +127,15 @@ export function RegressionScatterChart({ result, labels, showResiduals, showMean
                 x={result.meanX}
                 stroke="var(--muted-foreground)"
                 strokeDasharray="2 4"
+                className="pointer-events-none"
+                style={{ pointerEvents: "none" }}
               />
               <ReferenceLine
                 y={result.meanY}
                 stroke="var(--muted-foreground)"
                 strokeDasharray="2 4"
+                className="pointer-events-none"
+                style={{ pointerEvents: "none" }}
               />
               <ReferenceDot
                 x={result.meanX}
@@ -140,11 +144,13 @@ export function RegressionScatterChart({ result, labels, showResiduals, showMean
                 fill="var(--card)"
                 stroke="var(--foreground)"
                 strokeWidth={2}
+                className="pointer-events-none"
+                style={{ pointerEvents: "none" }}
                 label={{
                   value: "(X̄, Ȳ)",
                   position: "top",
                   offset: 10,
-                  className: "fill-foreground font-mono text-[11px]",
+                  className: "fill-foreground font-mono text-[11px] pointer-events-none",
                 }}
               />
             </>
@@ -161,6 +167,8 @@ export function RegressionScatterChart({ result, labels, showResiduals, showMean
                   strokeDasharray="3 3"
                   strokeWidth={1.5}
                   ifOverflow="extendDomain"
+                  className="pointer-events-none"
+                  style={{ pointerEvents: "none" }}
                 />
               ))
             : null}
@@ -173,6 +181,8 @@ export function RegressionScatterChart({ result, labels, showResiduals, showMean
             dot={false}
             activeDot={false}
             animationDuration={900}
+            className="pointer-events-none"
+            style={{ pointerEvents: "none" }}
           />
           <Scatter
             data={points}
@@ -182,7 +192,7 @@ export function RegressionScatterChart({ result, labels, showResiduals, showMean
             strokeWidth={1.5}
             animationDuration={700}
           />
-        </ComposedChart>
+        </ScatterChart>
       </ChartContainer>
       <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">

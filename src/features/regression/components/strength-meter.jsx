@@ -69,42 +69,46 @@ export function StrengthMeter({ r, strength, direction }) {
         </div>
       </div>
 
-      <table className="w-full text-xs">
-        <caption className="sr-only">Interpretation scale for the correlation coefficient</caption>
-        <thead>
-          <tr className="text-left text-xs text-muted-foreground">
-            <th scope="col" className="pb-2 font-medium">
-              |r|
-            </th>
-            <th scope="col" className="pb-2 font-medium">
-              Strength
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {STRENGTH_SCALE.map((band) => {
-            const active = band.label === strength;
-            return (
-              <tr
-                key={band.label}
-                className={cn(
-                  "border-t transition-colors",
-                  active && "bg-accent text-accent-foreground",
-                )}
-                aria-current={active ? "true" : undefined}
-              >
-                <td className="py-1 pr-2 pl-2 font-mono text-[11px] whitespace-nowrap tabular-nums">
-                  {band.range}
-                </td>
-                <td className="py-1 pr-2 font-medium">
-                  {band.label}
-                  {active ? <span className="sr-only"> (this result)</span> : null}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-hidden rounded-md border border-border/80 bg-card">
+        <table className="w-full text-xs">
+          <caption className="sr-only">
+            Interpretation scale for the correlation coefficient
+          </caption>
+          <thead className="bg-muted/70">
+            <tr className="border-b border-border/60 text-left text-[11px] text-muted-foreground">
+              <th scope="col" className="px-2.5 py-1.5 font-medium">
+                |r|
+              </th>
+              <th scope="col" className="px-2.5 py-1.5 font-medium">
+                Strength
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {STRENGTH_SCALE.map((band) => {
+              const active = band.label === strength;
+              return (
+                <tr
+                  key={band.label}
+                  className={cn(
+                    "border-t border-border/50 transition-colors first:border-t-0 hover:bg-muted/30",
+                    active && "bg-primary/10 font-semibold text-primary",
+                  )}
+                  aria-current={active ? "true" : undefined}
+                >
+                  <td className="px-2.5 py-1 font-mono text-[11px] whitespace-nowrap tabular-nums">
+                    {band.range}
+                  </td>
+                  <td className="px-2.5 py-1 font-medium">
+                    {band.label}
+                    {active ? <span className="sr-only"> (this result)</span> : null}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

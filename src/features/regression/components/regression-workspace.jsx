@@ -25,6 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRegression } from "../hooks/use-regression";
 import { DataTableEditor } from "./data-table-editor";
@@ -67,7 +68,7 @@ export function RegressionWorkspace() {
 
       <div className="grid items-start gap-4 xl:grid-cols-12">
         <Reveal className="xl:col-span-4" distance={16}>
-          <Card className="gap-4 py-4">
+          <Card className="gap-4 py-4 shadow-xs">
             <CardHeader className="px-4">
               <CardTitle>Data</CardTitle>
               <CardDescription>Type, paste or upload pairs.</CardDescription>
@@ -79,12 +80,12 @@ export function RegressionWorkspace() {
               <div className="grid grid-cols-2 gap-2">
                 {["x", "y"].map((key) => (
                   <div key={key} className="grid gap-1">
-                    <label
+                    <Label
                       htmlFor={`label-${key}`}
                       className="text-xs font-medium text-muted-foreground"
                     >
                       {key === "x" ? "X variable (independent)" : "Y variable (dependent)"}
-                    </label>
+                    </Label>
                     <Input
                       id={`label-${key}`}
                       value={labels[key]}
@@ -93,7 +94,7 @@ export function RegressionWorkspace() {
                         regression.setLabels({ ...labels, [key]: event.target.value })
                       }
                       placeholder={key === "x" ? "e.g. Hours studied" : "e.g. Exam score"}
-                      className="h-8 text-sm"
+                      className="h-8 rounded-md text-xs sm:text-sm"
                     />
                   </div>
                 ))}
@@ -130,10 +131,15 @@ export function RegressionWorkspace() {
               </Tabs>
             </CardContent>
             <CardFooter className="gap-2 border-t px-4 pt-4">
-              <Button variant="ghost" size="sm" onClick={regression.clear}>
-                <Eraser className="size-4" aria-hidden="true" /> Clear
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 rounded-md text-xs"
+                onClick={regression.clear}
+              >
+                <Eraser className="size-3.5" aria-hidden="true" /> Clear
               </Button>
-              <Badge variant="outline" className="font-mono tabular-nums">
+              <Badge variant="outline" className="h-8 rounded-md font-mono text-xs tabular-nums">
                 n = {parsed.xs.length}
               </Badge>
               <ComputeButton onClick={regression.compute} className="ml-auto" />

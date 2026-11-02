@@ -1,19 +1,19 @@
 "use client";
 
-import SpotlightCard from "@/components/reactbits/SpotlightCard";
-import { useResolvedTheme } from "@/hooks/use-resolved-theme";
+import { Card } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const TONES = {
-  default: { spot: "var(--primary)", icon: "bg-accent text-accent-foreground" },
-  accept: { spot: "var(--accept)", icon: "bg-accept-soft text-accept" },
-  reject: { spot: "var(--reject)", icon: "bg-reject-soft text-reject" },
+  default: { border: "border-border/70", icon: "bg-muted text-muted-foreground" },
+  accept: { border: "border-accept/40 bg-accept-soft/10", icon: "bg-accept-soft text-accept" },
+  reject: { border: "border-reject/40 bg-reject-soft/10", icon: "bg-reject-soft text-reject" },
 };
 
 /**
- * KPI card with a pointer-following spotlight (React Bits SpotlightCard).
+ * KPI card in sleek Shadcn style.
  *
- * @param {{ label: string, icon?: import('react').ElementType, tone?: keyof typeof TONES, hint?: import('react').ReactNode,
+ * @param {{ label: string, icon?: import('react').ElementType, tone?: keyof typeof TONES, hint?: import('react').ReactNode, tooltip?: string,
  *   children: import('react').ReactNode, className?: string, valueClassName?: string }} props
  */
 export function ResultCard({
@@ -21,32 +21,48 @@ export function ResultCard({
   icon: Icon,
   tone = "default",
   hint,
+  tooltip,
   children,
   className,
   valueClassName,
 }) {
-  const theme = useResolvedTheme();
-  const palette = TONES[tone];
+  const palette = TONES[tone] || TONES.default;
+  const labelContent = (
+    <p
+      className={cn(
+        "text-xs font-medium tracking-wide text-muted-foreground uppercase",
+        tooltip &&
+          "focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
+      )}
+      tabIndex={tooltip ? 0 : undefined}
+    >
+      {label}
+    </p>
+  );
+
   return (
-    <SpotlightCard
-      theme={theme}
-      spotlightColor={palette.spot}
-      intensity={theme === "dark" ? 0.18 : 0.5}
-      spotlightSize={260}
-      className={cn("rounded-xl border-0 p-4 sm:p-5", className)}
-      style={{
-        "--spotlight-card-surface": "var(--card)",
-        "--spotlight-card-border": "var(--border)",
-      }}
+    <Card
+      className={cn(
+        "rounded-xl border bg-card p-4 shadow-xs transition-colors sm:p-5",
+        palette.border,
+        className,
+      )}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        {tooltip ? (
+          <Tooltip>
+            <TooltipTrigger render={labelContent} />
+            <TooltipContent>{tooltip}</TooltipContent>
+          </Tooltip>
+        ) : (
+          labelContent
+        )}
         {Icon ? (
           <span
-            className={cn("grid size-8 shrink-0 place-items-center rounded-lg", palette.icon)}
+            className={cn("grid size-7 shrink-0 place-items-center rounded-md", palette.icon)}
             aria-hidden="true"
           >
-            <Icon className="size-4" />
+            <Icon className="size-3.5" />
           </span>
         ) : null}
       </div>
@@ -61,6 +77,6 @@ export function ResultCard({
       {hint ? (
         <div className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{hint}</div>
       ) : null}
-    </SpotlightCard>
+    </Card>
   );
 }

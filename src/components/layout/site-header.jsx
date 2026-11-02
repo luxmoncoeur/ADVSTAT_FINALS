@@ -27,24 +27,32 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NAV_ITEMS } from "./nav-items";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Change color theme">
-          <Sun
-            className="size-4 scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90"
-            aria-hidden="true"
-          />
-          <Moon
-            className="absolute size-4 scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0"
-            aria-hidden="true"
-          />
-        </Button>
-      </DropdownMenuTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" aria-label="Change color theme">
+                <Sun
+                  className="size-4 scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90"
+                  aria-hidden="true"
+                />
+                <Moon
+                  className="absolute size-4 scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0"
+                  aria-hidden="true"
+                />
+              </Button>
+            </DropdownMenuTrigger>
+          }
+        />
+        <TooltipContent>Theme preference (Light, Dark, System)</TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end">
         <DropdownMenuRadioGroup value={theme ?? "system"} onValueChange={setTheme}>
           <DropdownMenuRadioItem value="light">
@@ -69,22 +77,38 @@ function DecimalsSelect() {
       <span id="decimals-label" className="hidden text-sm text-muted-foreground sm:inline">
         Decimals
       </span>
-      <Select value={String(decimals)} onValueChange={(value) => setDecimals(Number(value))}>
-        <SelectTrigger
-          size="sm"
-          className="w-[4.5rem] font-mono tabular-nums"
-          aria-label="Decimal places shown"
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent align="end">
-          {DECIMAL_OPTIONS.map((option) => (
-            <SelectItem key={option} value={String(option)} className="font-mono tabular-nums">
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <div>
+              <Select
+                value={String(decimals)}
+                onValueChange={(value) => setDecimals(Number(value))}
+              >
+                <SelectTrigger
+                  size="sm"
+                  className="w-[4.5rem] font-mono tabular-nums"
+                  aria-label="Decimal places shown"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  {DECIMAL_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option}
+                      value={String(option)}
+                      className="font-mono tabular-nums"
+                    >
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          }
+        />
+        <TooltipContent>Decimal precision for displayed results (2–6 places)</TooltipContent>
+      </Tooltip>
     </div>
   );
 }
@@ -96,7 +120,7 @@ export function SiteHeader() {
   );
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border/50 bg-background/75 px-3 backdrop-blur-xl backdrop-saturate-180 supports-[backdrop-filter]:bg-background/70 sm:px-4 md:rounded-t-2xl">
+    <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border/50 bg-background/75 px-3 backdrop-blur-xl backdrop-saturate-180 supports-[backdrop-filter]:bg-background/70 sm:px-4 md:rounded-t-xl">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-4" />
       <Breadcrumb>

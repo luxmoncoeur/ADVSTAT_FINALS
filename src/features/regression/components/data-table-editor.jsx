@@ -38,10 +38,10 @@ export function DataTableEditor({
 
   return (
     <div className="space-y-2">
-      <div className="max-h-[340px] overflow-auto rounded-lg border">
+      <div className="max-h-[340px] overflow-auto rounded-md border border-border/80 bg-card">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">Data points. Press Enter to move to the next cell.</caption>
-          <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
+          <thead className="sticky top-0 z-10 border-b bg-muted/90 backdrop-blur">
             <tr className="text-left text-xs font-medium text-muted-foreground">
               <th scope="col" className="w-9 px-2 py-1.5 text-center">
                 #
@@ -61,7 +61,10 @@ export function DataTableEditor({
             {visible.map((row, index) => {
               const rowErrors = showErrors ? errors[row.id] : undefined;
               return (
-                <tr key={row.id} className="border-t transition-colors hover:bg-muted/40">
+                <tr
+                  key={row.id}
+                  className="border-t border-border/60 transition-colors hover:bg-muted/40"
+                >
                   <td className="px-2 py-1 text-center font-mono text-xs text-muted-foreground tabular-nums">
                     {index + 1}
                   </td>
@@ -80,22 +83,22 @@ export function DataTableEditor({
                         title={rowErrors?.[column]}
                         placeholder="—"
                         className={cn(
-                          "h-8 min-h-[32px] font-mono text-sm tabular-nums",
+                          "h-8 min-h-[32px] rounded-md font-mono text-xs tabular-nums sm:text-sm",
                           rowErrors?.[column] && "border-destructive",
                         )}
                       />
                     </td>
                   ))}
-                  <td className="px-1 py-1">
+                  <td className="px-1 py-1 text-center">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-destructive touch-manipulation"
+                      className="size-7 min-h-[28px] min-w-[28px] touch-manipulation rounded-md text-muted-foreground hover:text-destructive"
                       onClick={() => onRemoveRow(row.id)}
                       disabled={rows.length === 1}
                       aria-label={`Remove row ${index + 1}`}
                     >
-                      <Trash2 className="size-4" aria-hidden="true" />
+                      <Trash2 className="size-3.5" aria-hidden="true" />
                     </Button>
                   </td>
                 </tr>
@@ -110,8 +113,13 @@ export function DataTableEditor({
           editing. All rows are used in the analysis.
         </p>
       ) : null}
-      <Button variant="outline" size="sm" onClick={onAddRow} className="h-8 w-full border-dashed">
-        <Plus className="size-4" aria-hidden="true" /> Add row
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onAddRow}
+        className="h-8 w-full rounded-md border-dashed text-xs"
+      >
+        <Plus className="size-3.5" aria-hidden="true" /> Add row
       </Button>
     </div>
   );
