@@ -3,7 +3,6 @@
 import { Activity, Gauge, Minus, Sigma, TrendingDown, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/components/providers";
-import DecryptedText from "@/components/reactbits/DecryptedText";
 import { AnimatedNumber } from "@/components/shared/animated-number";
 import { Reveal } from "@/components/shared/reveal";
 import { ResultCard } from "@/components/shared/result-card";
@@ -20,7 +19,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatNumber, formatPercent } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { Interpretation } from "./interpretation";
 import { PredictionCard } from "./prediction-card";
 import { RSquaredGauge } from "./r-squared-gauge";
@@ -59,6 +60,7 @@ export function RegressionKpis({ result }) {
         icon={Sigma}
         className="col-span-2 sm:col-span-4 2xl:col-span-1"
         valueClassName="text-lg sm:text-xl"
+        tooltip="Fitted least-squares regression line: Ŷ = a + bX"
         hint={
           <span className="font-mono">
             a = {formatNumber(result.intercept, decimals, { fixed: true })} · b ={" "}
@@ -66,17 +68,8 @@ export function RegressionKpis({ result }) {
           </span>
         }
       >
-        <span className="sr-only">{equation}</span>
-        <span aria-hidden="true">
-          <DecryptedText
-            key={equation}
-            text={equation}
-            animateOn="view"
-            sequential
-            speed={24}
-            revealDirection="start"
-            characters="0123456789.+−XŶ"
-          />
+        <span className="font-mono text-base font-semibold tracking-tight sm:text-lg">
+          {equation}
         </span>
       </ResultCard>
       <ResultCard
@@ -84,6 +77,7 @@ export function RegressionKpis({ result }) {
         icon={DirectionIcon}
         className="col-span-2 sm:col-span-2 2xl:col-span-1"
         valueClassName="font-sans text-lg"
+        tooltip="Qualitative interpretation of linear correlation based on |r|"
         hint="From |r| on the scale"
       >
         {strengthText}
@@ -93,6 +87,7 @@ export function RegressionKpis({ result }) {
         className="sm:col-span-3 2xl:col-span-1"
         icon={Activity}
         valueClassName="text-xl"
+        tooltip="Pearson correlation coefficient: direction and strength of linear relationship (−1 ≤ r ≤ +1)"
         hint={result.r === null ? "All Y values are equal" : "−1 ≤ r ≤ +1"}
       >
         {result.r === null ? "Undefined" : <AnimatedNumber value={result.r} decimals={decimals} />}
@@ -102,6 +97,7 @@ export function RegressionKpis({ result }) {
         className="sm:col-span-3 2xl:col-span-1"
         icon={Gauge}
         valueClassName="text-xl"
+        tooltip="Coefficient of determination: proportion of total variance in Y explained by the model"
         hint={
           result.rSquared === null
             ? "—"
@@ -118,14 +114,23 @@ export function RegressionKpis({ result }) {
   );
 }
 
-function ChartToggle({ id, label, checked, onChange }) {
-  return (
+function ChartToggle({ id, label, checked, onChange, tooltip }) {
+  const content = (
     <div className="flex items-center gap-2">
       <Switch id={id} checked={checked} onCheckedChange={onChange} />
       <Label htmlFor={id} className="text-xs font-normal text-muted-foreground">
         {label}
       </Label>
     </div>
+  );
+
+  if (!tooltip) return content;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<div>{content}</div>} />
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -177,12 +182,14 @@ export function RegressionVisuals({ result, labels }) {
                       label="Residual lines"
                       checked={showResiduals}
                       onChange={setShowResiduals}
+                      tooltip="Show vertical error lines (Y − Ŷ) from each observation to the fitted line"
                     />
                     <ChartToggle
                       id="toggle-means"
                       label="Mean point (X̄, Ȳ)"
                       checked={showMeans}
                       onChange={setShowMeans}
+                      tooltip="Highlight the centroid (X̄, Ȳ) through which the regression line always passes"
                     />
                   </div>
                   <RegressionScatterChart
@@ -210,7 +217,7 @@ export function RegressionVisuals({ result, labels }) {
                         direction={result.direction}
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2.5">
                       <p className="text-sm font-medium">Variation explained (r²)</p>
                       <RSquaredGauge rSquared={result.rSquared} yLabel={labels.y} />
                     </div>

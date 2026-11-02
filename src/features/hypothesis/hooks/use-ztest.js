@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { parseNumber } from "@/lib/stats";
 import { ALPHA_PRESETS, TESTS } from "../config";
 

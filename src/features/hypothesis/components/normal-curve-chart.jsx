@@ -203,11 +203,13 @@ export function NormalCurveChart({ result, showPValue }) {
               x={item.x}
               stroke="none"
               ifOverflow="hidden"
+              className="pointer-events-none"
+              style={{ pointerEvents: "none" }}
               label={{
                 value: item.text,
                 position: "insideBottom",
                 offset: item.offset,
-                className: `${item.className} font-mono text-[11px] font-semibold`,
+                className: `${item.className} font-mono text-[11px] font-semibold pointer-events-none`,
               }}
             />
           ))}
@@ -265,10 +267,12 @@ export function NormalCurveChart({ result, showPValue }) {
                 stroke="var(--reject)"
                 strokeDasharray="5 4"
                 strokeWidth={1.5}
+                className="pointer-events-none"
+                style={{ pointerEvents: "none" }}
                 label={{
                   value: criticalLabel(value),
                   position: "top",
-                  className: "fill-reject font-mono text-[11px] font-semibold",
+                  className: "fill-reject font-mono text-[11px] font-semibold pointer-events-none",
                 }}
               />
             ))}
@@ -276,6 +280,8 @@ export function NormalCurveChart({ result, showPValue }) {
             x={markerX}
             stroke="var(--primary)"
             strokeWidth={2.5}
+            className="pointer-events-none"
+            style={{ pointerEvents: "none" }}
             label={{
               value: `z = ${formatNumber(z, Math.min(decimals, 4), { fixed: true })}${offChart ? (z > 0 ? " →" : " ←") : ""}`,
               // Inside the plot, one row below the critical-value labels, so the two never collide.
@@ -286,7 +292,7 @@ export function NormalCurveChart({ result, showPValue }) {
                     : "insideTopLeft"
                   : "insideTop",
               offset: 8,
-              className: "fill-primary font-mono text-xs font-semibold",
+              className: "fill-primary font-mono text-xs font-semibold pointer-events-none",
             }}
           />
         </ComposedChart>

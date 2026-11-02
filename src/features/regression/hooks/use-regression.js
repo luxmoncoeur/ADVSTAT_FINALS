@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { linearRegression, parseNumber } from "@/lib/stats";
 
 let nextId = 0;

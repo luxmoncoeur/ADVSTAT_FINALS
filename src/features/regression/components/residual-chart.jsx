@@ -56,8 +56,13 @@ export function ResidualChart({ result }) {
             interval="preserveStartEnd"
             minTickGap={8}
           />
-          <YAxis tickFormatter={formatTick} tickLine={false} axisLine={false} width={48} />
-          <ReferenceLine y={0} stroke="var(--border)" strokeWidth={1.5} />
+          <ReferenceLine
+            y={0}
+            stroke="var(--border)"
+            strokeWidth={1.5}
+            className="pointer-events-none"
+            style={{ pointerEvents: "none" }}
+          />
           <ChartTooltip
             cursor={{ fill: "var(--muted)", opacity: 0.6 }}
             content={
@@ -84,7 +89,7 @@ export function ResidualChart({ result }) {
               <LabelList
                 dataKey="residual"
                 position="top"
-                className="fill-muted-foreground font-mono text-[10px]"
+                className="pointer-events-none fill-muted-foreground font-mono text-[10px]"
                 formatter={(value) =>
                   Number(value) === largest.residual
                     ? formatNumber(Number(value), Math.min(decimals, 2))

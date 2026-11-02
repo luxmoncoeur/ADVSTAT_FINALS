@@ -1,16 +1,17 @@
 "use client";
 
 import {
+  Activity,
   ArrowRight,
   BookOpenText,
+  Calculator,
   ChartScatter,
   Crosshair,
+  Database,
   FlaskConical,
-  ListChecks,
-  Ruler,
-  ShieldCheck,
+  Layers,
   Sigma,
-  Activity,
+  SlidersHorizontal,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -20,25 +21,38 @@ import {
   CartesianGrid,
   ComposedChart,
   Line,
+  ReferenceLine,
   Scatter,
   XAxis,
   YAxis,
 } from "recharts";
 import { useSettings } from "@/components/providers";
-import Aurora from "@/components/reactbits/Aurora";
-import BlurText from "@/components/reactbits/BlurText";
-import RubberSegment from "@/components/reactbits/RubberSegment";
-import SpotlightCard from "@/components/reactbits/SpotlightCard";
-import { AnimatedNumber } from "@/components/shared/animated-number";
-import { NumberField } from "@/components/shared/number-field";
-import { Reveal } from "@/components/shared/reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { buildCurve } from "@/features/hypothesis/components/normal-curve-chart";
 import { REGRESSION_EXAMPLES } from "@/features/regression/examples";
-import { useResolvedTheme } from "@/hooks/use-resolved-theme";
 import { formatNumber } from "@/lib/format";
 import {
   classifyCorrelation,
@@ -47,424 +61,892 @@ import {
   oneMeanZTest,
   parseNumber,
 } from "@/lib/stats";
-import { cn } from "@/lib/utils";
 
-const AURORA = {
-  light: { colorStops: ["#c7d2fe", "#a5f3fc", "#ddd6fe"], blend: 0.6, opacity: 0.85 },
-  dark: { colorStops: ["#4f46e5", "#0e7490", "#6d28d9"], blend: 0.55, opacity: 0.55 },
-};
+const FEATURED_DATASETS = REGRESSION_EXAMPLES.slice(0, 6);
 
+export function Dashboard() {
+  const { decimals } = useSettings();
+  const [selectedDatasetId, setSelectedDatasetId] = useState(FEATURED_DATASETS[0].id);
 
+  // Live Z-test workbench controls
+  const [sampleMean, setSampleMean] = useState("510");
+  const [alpha, setAlpha] = useState("0.05");
+  const [tail, setTail] = useState("two");
 
-function useSamples() {
-  return useMemo(() => {
-    const sample = REGRESSION_EXAMPLES[0];
-    const regression = linearRegression(sample.x, sample.y);
-    const ztest = oneMeanZTest({
-      sampleMean: 510,
+  // Live Correlation interpreter control
+  const [rInput, setRInput] = useState("0.85");
+
+  const activeDataset = useMemo(
+    () => FEATURED_DATASETS.find((d) => d.id === selectedDatasetId) || FEATURED_DATASETS[0],
+    [selectedDatasetId],
+  );
+
+  const regression = useMemo(() => {
+    const res = linearRegression(activeDataset.x, activeDataset.y);
+    return res.ok ? res.value : null;
+  }, [activeDataset]);
+
+  const ztest = useMemo(() => {
+    const parsedMean = parseNumber(sampleMean) ?? 510;
+    const res = oneMeanZTest({
+      sampleMean: parsedMean,
       mu0: 500,
       sigma: 30,
       n: 36,
-      alpha: 0.05,
-      tail: "two",
+      alpha: Number(alpha),
+      tail: /** @type {'two'|'left'|'right'} */ (tail),
     });
-    if (!regression.ok || !ztest.ok) throw new Error("Sample data must compute");
-    return { regression: regression.value, ztest: ztest.value };
-  }, []);
-}
+    return res.ok ? res.value : null;
+  }, [sampleMean, alpha, tail]);
 
-function MiniScatter({ result }) {
-  const points = result.rows.map((row) => ({ x: row.x, y: row.y }));
-  const line = [result.minX, result.maxX].map((x) => ({
-    x,
-    y: result.intercept + result.slope * x,
-  }));
-  return (
-    <ChartContainer config={{}} className="aspect-auto h-32 w-full" aria-hidden="true">
-      <ComposedChart margin={{ top: 8, right: 8, bottom: 8, left: 8 }} accessibilityLayer={false}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" dataKey="x" domain={["dataMin - 1", "dataMax + 1"]} hide />
-        <YAxis type="number" dataKey="y" domain={["dataMin - 5", "dataMax + 5"]} hide />
-        <Line
-          data={line}
-          dataKey="y"
-          stroke="var(--chart-3)"
-          strokeWidth={2.5}
-          dot={false}
-          animationDuration={1200}
-        />
-        <Scatter data={points} fill="var(--chart-1)" animationDuration={900} />
-      </ComposedChart>
-    </ChartContainer>
+  const scatterPoints = useMemo(
+    () => (regression ? regression.rows.map((r) => ({ x: r.x, y: r.y })) : []),
+    [regression],
   );
-}
 
-function MiniCurve({ result }) {
-  const data = useMemo(() => buildCurve(result.tail, result.critical, result.z, 4), [result]);
-  return (
-    <ChartContainer config={{}} className="aspect-auto h-32 w-full" aria-hidden="true">
-      <AreaChart
-        data={data}
-        margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
-        accessibilityLayer={false}
-      >
-        <CartesianGrid vertical horizontal={false} strokeDasharray="3 3" />
-        <XAxis dataKey="x" type="number" domain={[-4, 4]} ticks={[-3, -2, -1, 0, 1, 2, 3]} hide />
-        <YAxis hide domain={[0, 0.43]} />
-        <Area
-          dataKey="accept"
-          type="linear"
-          stroke="none"
-          fill="var(--accept)"
-          fillOpacity={0.22}
-          connectNulls={false}
-          animationDuration={1000}
-        />
-        <Area
-          dataKey="reject"
-          type="linear"
-          stroke="none"
-          fill="var(--reject)"
-          fillOpacity={0.45}
-          connectNulls={false}
-          animationDuration={1000}
-        />
-        <Area
-          dataKey="z"
-          type="linear"
-          stroke="none"
-          fill="var(--primary)"
-          fillOpacity={0.7}
-          connectNulls={false}
-          animationDuration={1000}
-        />
-      </AreaChart>
-    </ChartContainer>
+  const fitLine = useMemo(
+    () =>
+      regression
+        ? [regression.minX, regression.maxX].map((x) => ({
+            x,
+            y: regression.intercept + regression.slope * x,
+          }))
+        : [],
+    [regression],
   );
-}
 
-function ModuleCard({
-  href,
-  icon: Icon,
-  eyebrow,
-  title,
-  description,
-  preview,
-  footer,
-  theme,
-  className,
-}) {
-  return (
-    <SpotlightCard
-      theme={theme}
-      spotlightColor="var(--primary)"
-      intensity={theme === "dark" ? 0.2 : 0.5}
-      spotlightSize={300}
-      className={cn("group h-full rounded-2xl", className)}
-      style={{
-        "--spotlight-card-surface": "var(--card)",
-        "--spotlight-card-border": "var(--border)",
-      }}
-    >
-      <Link
-        href={href}
-        className="flex h-full flex-col gap-3 rounded-2xl p-4 outline-none transition-transform duration-120 active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-ring motion-reduce:active:scale-100 sm:p-5"
-      >
-        <div className="flex items-center gap-3">
-          <span
-            className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_4px_14px_-4px_var(--primary)]"
-            aria-hidden="true"
-          >
-            <Icon className="size-4.5" />
-          </span>
-          <h2 className="font-semibold tracking-[-0.015em] text-foreground">{title}</h2>
-          <Badge variant="secondary" className="ml-auto rounded-full font-medium">
-            {eyebrow}
-          </Badge>
-        </div>
-        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-        <div className="flex min-h-32 flex-1 rounded-xl border border-border/60 bg-background/60 p-1.5 [&>[data-slot=chart]]:h-full">
-          {preview}
-        </div>
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="font-mono text-xs text-muted-foreground tabular-nums">{footer}</span>
-          <span className="flex items-center gap-1 font-medium text-primary">
-            Open{" "}
-            <ArrowRight
-              className="size-4 transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
-              aria-hidden="true"
-            />
-          </span>
-        </div>
-      </Link>
-    </SpotlightCard>
+  const curveData = useMemo(
+    () => (ztest ? buildCurve(ztest.tail, ztest.critical, ztest.z, 4) : []),
+    [ztest],
   );
-}
 
-/** Quick tool: critical z for any common α and tail, computed with the same engine. */
-function CriticalZTool() {
-  const { decimals } = useSettings();
-  const [alpha, setAlpha] = useState("0.05");
-  const [tail, setTail] = useState("two");
-  const critical = criticalZ(Number(alpha), /** @type {'two'|'left'|'right'} */ (tail));
-  const value = /** @type {number} */ (tail === "left" ? critical.lower : critical.upper);
-  return (
-    <Card className="gap-3 py-4">
-      <CardHeader className="px-4">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Crosshair className="size-4 text-primary" aria-hidden="true" /> Critical z finder
-        </CardTitle>
-        <CardDescription className="text-xs">No z-table needed.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-2.5 px-4">
-        <RubberSegment
-          aria-label="Level of significance"
-          items={["0.10", "0.05", "0.01"]}
-          value={alpha}
-          onChange={setAlpha}
-          size="sm"
-          className="w-full font-mono"
-        />
-        <RubberSegment
-          aria-label="Tail"
-          items={[
-            { value: "left", label: "Left" },
-            { value: "two", label: "Two" },
-            { value: "right", label: "Right" },
-          ]}
-          value={tail}
-          onChange={setTail}
-          size="sm"
-          className="w-full"
-        />
-        <p className="pt-1 font-mono text-2xl font-semibold tracking-tight" aria-live="polite">
-          z = {tail === "two" ? "±" : ""}
-          <AnimatedNumber
-            value={tail === "two" ? Math.abs(value) : value}
-            decimals={decimals}
-            duration={0.4}
-          />
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
+  const parsedR = parseNumber(rInput);
+  const validR = parsedR !== null && parsedR >= -1 && parsedR <= 1;
+  const rReading = validR ? classifyCorrelation(parsedR) : null;
 
-/** Quick tool: interpret any r on the strength scale. */
-function RInterpreterTool() {
-  const [text, setText] = useState("0.85");
-  const r = parseNumber(text);
-  const valid = r !== null && r >= -1 && r <= 1;
-  const reading = valid ? classifyCorrelation(r) : null;
-  return (
-    <Card className="gap-3 py-4">
-      <CardHeader className="px-4">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Activity className="size-4 text-primary" aria-hidden="true" /> r interpreter
-        </CardTitle>
-        <CardDescription className="text-xs">How strong is a correlation?</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-2.5 px-4">
-        <NumberField
-          name="quick-r"
-          label="Correlation r"
-          symbol="−1 to 1"
-          value={text}
-          onChange={setText}
-          error={text.trim() !== "" && !valid ? "Enter a number from −1 to 1" : null}
-        />
-        <div className="space-y-1.5" aria-live="polite">
-          <div
-            className="relative h-2 rounded-full bg-[linear-gradient(90deg,var(--chart-5),var(--muted)_50%,var(--chart-1))]"
-            aria-hidden="true"
-          >
-            {valid ? (
-              <span
-                className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background bg-foreground transition-[left] duration-500 motion-reduce:transition-none"
-                style={{ left: `${((r + 1) / 2) * 100}%` }}
-              />
-            ) : null}
-          </div>
-          <p className="text-sm font-medium">
-            {reading
-              ? reading.strength === "None"
-                ? "No linear relationship"
-                : `${reading.strength} ${reading.direction}`
-              : "—"}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-const FEATURES = [
-  { icon: ListChecks, title: "Step-by-step", text: "Every formula with your numbers." },
-  { icon: Ruler, title: "Precise", text: "Double precision, 2–6 decimals shown." },
-  { icon: ShieldCheck, title: "Verified", text: "Checked against SciPy & statsmodels." },
-];
-
-export function Dashboard() {
-  const theme = useResolvedTheme();
-  const { decimals } = useSettings();
-  const { regression, ztest } = useSamples();
+  if (!regression || !ztest) return null;
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] space-y-4 p-4 sm:p-6">
-      <section
-        className="relative isolate overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_2px_16px_-4px_rgba(0,0,0,0.04)] dark:border-white/10 dark:shadow-[0_4px_24px_-6px_rgba(0,0,0,0.35)]"
-        aria-labelledby="hero-title"
-      >
-        <div className="absolute inset-0 -z-10" aria-hidden="true">
-          <Aurora
-            {...AURORA[theme]}
-            amplitude={0.9}
-            speed={0.5}
-            lightMode={theme === "light"}
-            height={0.6}
-          />
+    <div className="mx-auto w-full max-w-[1520px] space-y-5 p-4 sm:p-6">
+      {/* Shadcn Dashboard Header */}
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Interactive statistical workspace</p>
         </div>
-        <div
-          className="absolute inset-0 -z-10 bg-gradient-to-r from-card via-card/85 to-card/40"
-          aria-hidden="true"
-        />
-
-        <div className="grid items-center gap-6 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[minmax(0,1fr)_auto]">
-          <div className="max-w-2xl space-y-3">
-            <Badge
-              variant="outline"
-              className="gap-1.5 rounded-full border-border/60 bg-card/80 px-3 py-1 backdrop-blur-md"
-            >
-              <Sigma className="size-3.5 text-primary" aria-hidden="true" />
-              <span className="text-xs font-semibold tracking-tight text-foreground">
-                ADVSTAT · Statistics Lab
-              </span>
-            </Badge>
-            <h1
-              id="hero-title"
-              className="text-3xl font-semibold tracking-[-0.025em] text-balance text-foreground sm:text-4xl"
-            >
-              <span className="sr-only">Statistics, solved step by step.</span>
-              <span aria-hidden="true">
-                <BlurText
-                  text="Statistics, solved step by step."
-                  animateBy="words"
-                  delay={90}
-                  trigger="load"
-                />
-              </span>
-            </h1>
-            <p className="max-w-xl text-sm leading-relaxed text-pretty text-muted-foreground sm:text-base">
-              Regression and z-tests with your own data, a clear verdict, and every formula worked
-              out.
-            </p>
-            <div className="flex flex-wrap gap-2.5 pt-1">
-              <Button
-                asChild
-                className="h-auto rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_4px_14px_-4px_var(--primary)] hover:bg-primary/90"
-              >
-                <Link href="/regression">
-                  <ChartScatter className="size-4" aria-hidden="true" /> Linear regression
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="h-auto rounded-xl border-border/80 bg-card/80 px-4 py-2.5 backdrop-blur-md hover:bg-muted/70"
-              >
-                <Link href="/hypothesis">
-                  <FlaskConical className="size-4" aria-hidden="true" /> Hypothesis test
-                </Link>
-              </Button>
-            </div>
-          </div>
-          <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-2">
-            {[
-              ["Sample r", <AnimatedNumber key="r" value={regression.r} decimals={decimals} />],
-              [
-                "Sample r²",
-                <AnimatedNumber key="r2" value={regression.rSquared} decimals={decimals} />,
-              ],
-              ["Sample z", <AnimatedNumber key="z" value={ztest.z} decimals={decimals} />],
-              [
-                "p-value",
-                <AnimatedNumber key="p" value={ztest.pValue} decimals={decimals} kind="p" />,
-              ],
-            ].map(([label, value]) => (
-              <div
-                key={String(label)}
-                className="min-w-[8.5rem] rounded-xl border border-border/60 bg-card/85 px-3.5 py-2.5 shadow-xs backdrop-blur-md dark:border-white/10"
-              >
-                <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-                <dd className="mt-0.5 font-mono text-xl font-semibold tracking-tight tabular-nums text-foreground">
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm" className="h-8 rounded-md text-xs">
+            <Link href="/learn">
+              <BookOpenText className="size-3.5" aria-hidden="true" />
+              Formulas &amp; Z-Table
+            </Link>
+          </Button>
+          <Button asChild size="sm" className="h-8 rounded-md text-xs">
+            <Link href="/regression">
+              <ChartScatter className="size-3.5" aria-hidden="true" />
+              New Analysis
+            </Link>
+          </Button>
         </div>
-      </section>
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-12">
-        <Reveal className="h-full xl:col-span-5" distance={16}>
-          <ModuleCard
-            theme={theme}
-            href="/regression"
-            icon={ChartScatter}
-            eyebrow="Module 1"
-            title="Linear Regression"
-            description="Equation, r, strength of relationship and a scatter diagram with the fitted line."
-            preview={<MiniScatter result={regression} />}
-            footer={`Ŷ = ${formatNumber(regression.intercept, 2, { fixed: true })} + ${formatNumber(regression.slope, 2, { fixed: true })}X · ${REGRESSION_EXAMPLES.length} datasets`}
-          />
-        </Reveal>
-        <Reveal className="h-full xl:col-span-4" distance={16} delay={0.06}>
-          <ModuleCard
-            theme={theme}
-            href="/hypothesis"
-            icon={FlaskConical}
-            eyebrow="Module 2"
-            title="Hypothesis Testing"
-            description="Four z-tests with a plain-language verdict, the normal curve and critical values."
-            preview={<MiniCurve result={ztest} />}
-            footer={`z = ${formatNumber(ztest.z, 2, { fixed: true })} · ${ztest.reject ? "Reject H₀" : "Fail to reject H₀"}`}
-          />
-        </Reveal>
-        <Reveal
-          className="grid gap-4 md:col-span-2 md:grid-cols-2 xl:col-span-3 xl:grid-cols-1"
-          distance={16}
-          delay={0.12}
-        >
-          <CriticalZTool />
-          <RInterpreterTool />
-        </Reveal>
       </div>
 
-      <Reveal className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" distance={12}>
-        {FEATURES.map((feature) => (
-          <div
-            key={feature.title}
-            className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-xs"
-          >
-            <feature.icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
-            <p className="text-sm">
-              <span className="font-semibold text-foreground">{feature.title}.</span>{" "}
-              <span className="text-muted-foreground">{feature.text}</span>
-            </p>
+      {/* Main Shadcn Tabs Container */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList className="h-9 rounded-lg bg-muted p-1">
+            <TabsTrigger value="overview" className="rounded-md px-3 text-xs">
+              <Layers className="size-3.5" aria-hidden="true" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="calculators" className="rounded-md px-3 text-xs">
+              <Calculator className="size-3.5" aria-hidden="true" />
+              Quick Calculators
+            </TabsTrigger>
+            <TabsTrigger value="datasets" className="rounded-md px-3 text-xs">
+              <Database className="size-3.5" aria-hidden="true" />
+              Sample Datasets ({REGRESSION_EXAMPLES.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="hidden items-center gap-2 sm:flex">
+            <span className="text-xs text-muted-foreground">Active preset:</span>
+            <Badge variant="secondary" className="rounded-md font-mono text-xs">
+              {activeDataset.name}
+            </Badge>
           </div>
-        ))}
-        <Link
-          href="/learn"
-          className="group flex items-center gap-3 rounded-2xl border border-dashed border-border/80 px-4 py-3 transition-all duration-120 hover:border-primary/60 hover:bg-accent/40 active:scale-[0.985] motion-reduce:active:scale-100"
-        >
-          <BookOpenText className="size-5 shrink-0 text-primary" aria-hidden="true" />
-          <span className="text-sm font-semibold text-foreground">Formulas & z-table</span>
-          <ArrowRight
-            className="ml-auto size-4 text-primary transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
-            aria-hidden="true"
-          />
-        </Link>
-      </Reveal>
+        </div>
+
+        {/* TAB 1: OVERVIEW */}
+        <TabsContent value="overview" className="space-y-4">
+          {/* 4 Classic Shadcn KPI Cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="gap-2 rounded-xl py-4 shadow-xs">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          Correlation (r)
+                        </span>
+                      }
+                    />
+                    <TooltipContent>
+                      Pearson correlation coefficient: direction and strength of linear relationship
+                      (−1 ≤ r ≤ +1)
+                    </TooltipContent>
+                  </Tooltip>
+                </CardTitle>
+                <Activity className="size-4 text-muted-foreground" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="font-mono text-2xl font-bold tracking-tight tabular-nums">
+                  {formatNumber(regression.r, decimals)}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {regression.strength} {regression.direction} ({activeDataset.name})
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="gap-2 rounded-xl py-4 shadow-xs">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          Determination (R²)
+                        </span>
+                      }
+                    />
+                    <TooltipContent>
+                      Coefficient of determination: proportion of total variance in Y explained by
+                      the model
+                    </TooltipContent>
+                  </Tooltip>
+                </CardTitle>
+                <ChartScatter className="size-4 text-muted-foreground" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="font-mono text-2xl font-bold tracking-tight tabular-nums">
+                  {formatNumber(regression.rSquared, decimals)}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {formatNumber(regression.rSquared * 100, 1)}% of Y variance explained by X
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="gap-2 rounded-xl py-4 shadow-xs">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          Z-Statistic (z)
+                        </span>
+                      }
+                    />
+                    <TooltipContent>
+                      Standardized test score: distance of sample mean from hypothesized mean in
+                      standard errors
+                    </TooltipContent>
+                  </Tooltip>
+                </CardTitle>
+                <Sigma className="size-4 text-muted-foreground" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="font-mono text-2xl font-bold tracking-tight tabular-nums">
+                  {formatNumber(ztest.z, decimals)}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Critical z* ={" "}
+                  {tail === "two"
+                    ? `±${formatNumber(ztest.critical.upper, 2)}`
+                    : formatNumber(
+                        tail === "left" ? ztest.critical.lower : ztest.critical.upper,
+                        2,
+                      )}{" "}
+                  at α = {alpha}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="gap-2 rounded-xl py-4 shadow-xs">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          Hypothesis Verdict
+                        </span>
+                      }
+                    />
+                    <TooltipContent>
+                      Statistical decision rule: reject null hypothesis H₀ when p-value ≤ α
+                    </TooltipContent>
+                  </Tooltip>
+                </CardTitle>
+                <FlaskConical className="size-4 text-muted-foreground" aria-hidden="true" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-2xl font-bold tracking-tight tabular-nums">
+                    p = {formatNumber(ztest.pValue, 4)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Decision:{" "}
+                  <span className="font-medium text-foreground">
+                    {ztest.reject ? "Reject H₀" : "Fail to reject H₀"}
+                  </span>
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Two Interactive Workbench Panels */}
+          <div className="grid gap-4 lg:grid-cols-7">
+            {/* Left 4 cols: Interactive Linear Regression Preview */}
+            <Card className="rounded-xl shadow-xs lg:col-span-4">
+              <CardHeader className="pb-3">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-base font-semibold">
+                      Linear Regression Model
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Switch sample datasets below to preview live OLS fit &amp; equation
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline" className="rounded-md font-mono text-xs">
+                    Ŷ = {formatNumber(regression.intercept, 2)} +{" "}
+                    {formatNumber(regression.slope, 2)}X
+                  </Badge>
+                </div>
+
+                {/* Preset Switcher Pills */}
+                <div
+                  className="flex flex-wrap gap-1.5 pt-2"
+                  role="group"
+                  aria-label="Sample datasets"
+                >
+                  {FEATURED_DATASETS.map((ds) => (
+                    <Button
+                      key={ds.id}
+                      type="button"
+                      variant={ds.id === selectedDatasetId ? "default" : "outline"}
+                      size="xs"
+                      onClick={() => setSelectedDatasetId(ds.id)}
+                      className="h-6 rounded-md px-2.5 text-[11px]"
+                    >
+                      {ds.name}
+                    </Button>
+                  ))}
+                </div>
+              </CardHeader>
+
+              <CardContent>
+                <div className="h-56 w-full rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <ChartContainer
+                    config={{}}
+                    className="aspect-auto h-full w-full"
+                    aria-hidden="true"
+                  >
+                    <ComposedChart
+                      margin={{ top: 10, right: 12, bottom: 8, left: 8 }}
+                      accessibilityLayer={false}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis
+                        type="number"
+                        dataKey="x"
+                        domain={["dataMin - 1", "dataMax + 1"]}
+                        tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                      <YAxis
+                        type="number"
+                        dataKey="y"
+                        domain={["dataMin - 5", "dataMax + 5"]}
+                        tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                        tickLine={false}
+                        axisLine={false}
+                        width={36}
+                      />
+                      <Line
+                        data={fitLine}
+                        dataKey="y"
+                        stroke="var(--primary)"
+                        strokeWidth={2}
+                        dot={false}
+                        isAnimationActive={false}
+                        className="pointer-events-none"
+                        style={{ pointerEvents: "none" }}
+                      />
+                      <Scatter
+                        data={scatterPoints}
+                        fill="var(--foreground)"
+                        isAnimationActive={false}
+                      />
+                    </ComposedChart>
+                  </ChartContainer>
+                </div>
+              </CardContent>
+
+              <CardFooter className="justify-between border-t border-border/60 bg-muted/30 py-3">
+                <div className="flex flex-wrap items-center gap-4 font-mono text-xs text-muted-foreground">
+                  <span>n = {regression.n}</span>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          Sxx = {formatNumber(regression.sxx, 1)}
+                        </span>
+                      }
+                    />
+                    <TooltipContent>Sum of squared deviations of X from its mean</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          Sxy = {formatNumber(regression.sxy, 1)}
+                        </span>
+                      }
+                    />
+                    <TooltipContent>Sum of products of deviations for X and Y</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          se = {formatNumber(regression.standardError, 2)}
+                        </span>
+                      }
+                    />
+                    <TooltipContent>Standard error of the estimate</TooltipContent>
+                  </Tooltip>
+                </div>
+                <Button asChild size="sm" className="h-7 rounded-md px-3 text-xs">
+                  <Link href="/regression">
+                    Full Regression Lab
+                    <ArrowRight className="size-3.5" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Right 3 cols: Interactive Hypothesis Sandbox */}
+            <Card className="rounded-xl shadow-xs lg:col-span-3">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-base font-semibold">
+                      One-Mean Z-Test Sandbox
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Adjust sample mean x̄, α, and tail to inspect the critical region
+                    </CardDescription>
+                  </div>
+                  <Badge
+                    variant={ztest.reject ? "destructive" : "secondary"}
+                    className="rounded-md font-mono text-xs"
+                  >
+                    {ztest.reject ? "Reject H₀" : "Retain H₀"}
+                  </Badge>
+                </div>
+
+                {/* Mini Inline Controls */}
+                <div className="grid grid-cols-3 gap-2 pt-2">
+                  <div className="space-y-1">
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Label
+                            htmlFor="workbench-sample-mean"
+                            tabIndex={0}
+                            className="text-[11px] text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                          >
+                            Sample x̄
+                          </Label>
+                        }
+                      />
+                      <TooltipContent>
+                        Sample mean: arithmetic average of sample data
+                      </TooltipContent>
+                    </Tooltip>
+                    <Input
+                      id="workbench-sample-mean"
+                      type="text"
+                      inputMode="decimal"
+                      value={sampleMean}
+                      onChange={(e) => setSampleMean(e.target.value)}
+                      className="h-7 rounded-md px-2 font-mono text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Label
+                            tabIndex={0}
+                            className="block text-[11px] font-medium text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                          >
+                            Alpha (α)
+                          </Label>
+                        }
+                      />
+                      <TooltipContent>
+                        Significance level: maximum allowable probability of Type I error
+                      </TooltipContent>
+                    </Tooltip>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      size="sm"
+                      spacing={0}
+                      value={alpha}
+                      onValueChange={(v) => v && setAlpha(v)}
+                      aria-label="Level of significance"
+                      className="h-7 w-full"
+                    >
+                      {[
+                        { a: "0.10", desc: "10% significance level (90% confidence)" },
+                        { a: "0.05", desc: "5% significance level (95% confidence, standard)" },
+                        { a: "0.01", desc: "1% significance level (99% confidence, stringent)" },
+                      ].map(({ a, desc }) => (
+                        <Tooltip key={a}>
+                          <TooltipTrigger
+                            render={
+                              <ToggleGroupItem
+                                value={a}
+                                className="h-7 flex-1 px-1 font-mono text-[11px]"
+                              >
+                                {a}
+                              </ToggleGroupItem>
+                            }
+                          />
+                          <TooltipContent>{desc}</TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </ToggleGroup>
+                  </div>
+                  <div className="space-y-1">
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Label
+                            tabIndex={0}
+                            className="block text-[11px] font-medium text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                          >
+                            Tail
+                          </Label>
+                        }
+                      />
+                      <TooltipContent>
+                        Direction of alternative hypothesis: Left-tailed (&lt;), Two-tailed (≠),
+                        Right-tailed (&gt;)
+                      </TooltipContent>
+                    </Tooltip>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      size="sm"
+                      spacing={0}
+                      value={tail}
+                      onValueChange={(v) => v && setTail(v)}
+                      aria-label="Tail direction"
+                      className="h-7 w-full"
+                    >
+                      {[
+                        { v: "left", l: "L", label: "Left-tailed (<)" },
+                        { v: "two", l: "2T", label: "Two-tailed (≠)" },
+                        { v: "right", l: "R", label: "Right-tailed (>)" },
+                      ].map((t) => (
+                        <Tooltip key={t.v}>
+                          <TooltipTrigger
+                            render={
+                              <ToggleGroupItem
+                                value={t.v}
+                                aria-label={t.label}
+                                className="h-7 flex-1 px-1 text-[11px]"
+                              >
+                                {t.l}
+                              </ToggleGroupItem>
+                            }
+                          />
+                          <TooltipContent>{t.label}</TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </ToggleGroup>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent>
+                <div className="h-56 w-full rounded-lg border border-border/70 bg-muted/20 p-3">
+                  <ChartContainer
+                    config={{}}
+                    className="aspect-auto h-full w-full"
+                    aria-hidden="true"
+                  >
+                    <AreaChart
+                      data={curveData}
+                      margin={{ top: 10, right: 10, bottom: 8, left: 10 }}
+                      accessibilityLayer={false}
+                    >
+                      <CartesianGrid
+                        vertical
+                        horizontal={false}
+                        strokeDasharray="3 3"
+                        stroke="var(--border)"
+                      />
+                      <XAxis
+                        dataKey="x"
+                        type="number"
+                        domain={[-4, 4]}
+                        ticks={[-3, -2, -1, 0, 1, 2, 3]}
+                        tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                      <YAxis hide domain={[0, 0.43]} />
+                      <Area
+                        dataKey="accept"
+                        type="monotone"
+                        stroke="var(--muted-foreground)"
+                        strokeWidth={1.25}
+                        fill="var(--accept)"
+                        fillOpacity={0.18}
+                        connectNulls={false}
+                        isAnimationActive={false}
+                      />
+                      <Area
+                        dataKey="reject"
+                        type="monotone"
+                        stroke="var(--reject)"
+                        strokeWidth={1.5}
+                        fill="var(--reject)"
+                        fillOpacity={0.4}
+                        connectNulls={false}
+                        isAnimationActive={false}
+                      />
+                      <ReferenceLine x={ztest.z} stroke="var(--primary)" strokeWidth={2} />
+                    </AreaChart>
+                  </ChartContainer>
+                </div>
+              </CardContent>
+
+              <CardFooter className="justify-between border-t border-border/60 bg-muted/30 py-3">
+                <span className="font-mono text-xs text-muted-foreground">
+                  μ₀ = 500 · σ = 30 · n = 36
+                </span>
+                <Button asChild size="sm" variant="outline" className="h-7 rounded-md px-3 text-xs">
+                  <Link href="/hypothesis">
+                    Full Z-Test Lab
+                    <ArrowRight className="size-3.5" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* TAB 2: QUICK CALCULATORS */}
+        <TabsContent value="calculators" className="grid gap-4 md:grid-cols-2">
+          <Card className="rounded-xl shadow-xs">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Crosshair className="size-4 text-primary" aria-hidden="true" />
+                Critical Value (z*) Matrix
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Standard normal critical thresholds across significance levels α
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <span
+                              tabIndex={0}
+                              className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                            >
+                              Alpha (α)
+                            </span>
+                          }
+                        />
+                        <TooltipContent>
+                          Level of significance α (Type I error probability)
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableHead>
+                    <TableHead className="text-xs">Confidence</TableHead>
+                    <TableHead className="text-right font-mono text-xs">
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <span
+                              tabIndex={0}
+                              className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                            >
+                              Left-Tailed
+                            </span>
+                          }
+                        />
+                        <TooltipContent>
+                          Critical cutoff for Hₐ: μ &lt; μ₀ (lower rejection tail)
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableHead>
+                    <TableHead className="text-right font-mono text-xs">
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <span
+                              tabIndex={0}
+                              className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                            >
+                              Right-Tailed
+                            </span>
+                          }
+                        />
+                        <TooltipContent>
+                          Critical cutoff for Hₐ: μ &gt; μ₀ (upper rejection tail)
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableHead>
+                    <TableHead className="text-right font-mono text-xs">
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <span
+                              tabIndex={0}
+                              className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                            >
+                              Two-Tailed
+                            </span>
+                          }
+                        />
+                        <TooltipContent>
+                          Critical cutoffs for Hₐ: μ ≠ μ₀ (split rejection tails ±z*)
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {["0.10", "0.05", "0.01"].map((a) => {
+                    const left = criticalZ(Number(a), "left");
+                    const right = criticalZ(Number(a), "right");
+                    const two = criticalZ(Number(a), "two");
+                    return (
+                      <TableRow key={a}>
+                        <TableCell className="font-mono text-xs font-medium">{a}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {formatNumber((1 - Number(a)) * 100, 0)}%
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs tabular-nums">
+                          {formatNumber(left.lower, decimals)}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs tabular-nums">
+                          +{formatNumber(right.upper, decimals)}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs font-semibold tabular-nums">
+                          ±{formatNumber(two.upper, decimals)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl shadow-xs">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <SlidersHorizontal className="size-4 text-primary" aria-hidden="true" />
+                Correlation Strength Evaluator
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Enter any Pearson r value in [−1, 1] to evaluate direction and R²
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Input
+                  value={rInput}
+                  onChange={(e) => setRInput(e.target.value)}
+                  aria-label="Pearson correlation coefficient r"
+                  className="h-9 max-w-[160px] font-mono text-sm"
+                  placeholder="0.85"
+                />
+                {rReading ? (
+                  <Badge variant="secondary" className="h-7 rounded-md px-3 text-xs">
+                    {rReading.strength === "None"
+                      ? "No linear relationship"
+                      : `${rReading.strength} ${rReading.direction}`}
+                  </Badge>
+                ) : (
+                  <Badge variant="destructive" className="h-7 rounded-md px-3 text-xs">
+                    Out of range [−1, 1]
+                  </Badge>
+                )}
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 rounded-lg border border-border bg-muted/20 p-3 font-mono text-xs">
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="block font-sans text-[11px] text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          r value
+                        </span>
+                      }
+                    />
+                    <TooltipContent>Pearson correlation coefficient (−1 ≤ r ≤ +1)</TooltipContent>
+                  </Tooltip>
+                  <span className="mt-0.5 block text-sm font-semibold">
+                    {validR && parsedR !== null ? formatNumber(parsedR, decimals) : "—"}
+                  </span>
+                </div>
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="block font-sans text-[11px] text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          R² (Coefficient)
+                        </span>
+                      }
+                    />
+                    <TooltipContent>
+                      Coefficient of determination: proportion of variance in Y explained by X
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="mt-0.5 block text-sm font-semibold">
+                    {validR && parsedR !== null ? formatNumber(parsedR * parsedR, decimals) : "—"}
+                  </span>
+                </div>
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          className="block font-sans text-[11px] text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                        >
+                          Shared Variance
+                        </span>
+                      }
+                    />
+                    <TooltipContent>
+                      Percentage of common variance between X and Y (r² × 100%)
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="mt-0.5 block text-sm font-semibold">
+                    {validR && parsedR !== null
+                      ? `${formatNumber(parsedR * parsedR * 100, 1)}%`
+                      : "—"}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 3: SAMPLE DATASETS */}
+        <TabsContent value="datasets">
+          <Card className="rounded-xl shadow-xs">
+            <CardHeader>
+              <CardTitle className="text-base">Curated Practice Datasets</CardTitle>
+              <CardDescription className="text-xs">
+                Inspect bivariate practice datasets or open directly in the Regression workspace
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Dataset</TableHead>
+                    <TableHead className="text-xs">Category</TableHead>
+                    <TableHead className="text-xs">Variables (X → Y)</TableHead>
+                    <TableHead className="text-right font-mono text-xs">n</TableHead>
+                    <TableHead className="text-right font-mono text-xs">Pearson r</TableHead>
+                    <TableHead className="text-right text-xs">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {REGRESSION_EXAMPLES.slice(0, 8).map((item) => {
+                    const calc = linearRegression(item.x, item.y);
+                    const rVal = calc.ok ? calc.value.r : 0;
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell className="text-xs font-medium">{item.name}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="rounded-md text-[11px]">
+                            {item.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {item.xLabel} → {item.yLabel}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs">
+                          {item.x.length}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs font-semibold tabular-nums">
+                          {formatNumber(rVal, 3)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button asChild variant="ghost" size="xs" className="rounded-md">
+                            <Link href="/regression">Open ↗</Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

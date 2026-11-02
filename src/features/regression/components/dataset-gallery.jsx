@@ -98,7 +98,7 @@ export function DatasetGrid({ onPick, columns = "sm:grid-cols-2 xl:grid-cols-3" 
                   <button
                     type="button"
                     onClick={() => onPick(dataset)}
-                    className="group flex h-full w-full flex-col gap-1.5 rounded-xl border bg-card p-3 text-left transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:hover:translate-y-0"
+                    className="group flex h-full w-full flex-col gap-1.5 rounded-lg border bg-card p-3 text-left shadow-xs transition-colors hover:border-primary/40 hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                   >
                     <span className="flex items-start justify-between gap-2">
                       <span className="text-sm leading-snug font-medium">{dataset.name}</span>
@@ -114,7 +114,7 @@ export function DatasetGrid({ onPick, columns = "sm:grid-cols-2 xl:grid-cols-3" 
                         </span>
                         <span
                           className={cn(
-                            "rounded-full px-2 py-0.5 font-medium",
+                            "rounded-md px-1.5 py-0.5 text-[11px] font-medium",
                             strengthTone(dataset.result.strength),
                           )}
                         >
@@ -140,12 +140,9 @@ export function DatasetDialog({ onPick, variant = "outline", size = "sm", classN
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={variant} size={size} className={className}>
-          <Library className="size-4" aria-hidden="true" /> Datasets
-          <Badge
-            variant="secondary"
-            className="ml-0.5 h-5 rounded-full px-1.5 font-mono text-[10px]"
-          >
+        <Button variant={variant} size={size} className={cn("h-8 rounded-md text-xs", className)}>
+          <Library className="size-3.5" aria-hidden="true" /> Datasets
+          <Badge variant="secondary" className="ml-0.5 h-5 rounded-md px-1.5 font-mono text-[10px]">
             {REGRESSION_EXAMPLES.length}
           </Badge>
         </Button>

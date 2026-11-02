@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import { createContext, useCallback, useContext, useMemo, useSyncExternalStore } from "react";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const DECIMAL_OPTIONS = [2, 3, 4, 5, 6];
@@ -51,9 +51,9 @@ export function Providers({ children }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <SettingsProvider>
-        <TooltipProvider delayDuration={200}>
+        <TooltipProvider delay={200}>
           {children}
-          <Toaster position="bottom-right" richColors closeButton />
+          <Toaster />
         </TooltipProvider>
       </SettingsProvider>
     </ThemeProvider>

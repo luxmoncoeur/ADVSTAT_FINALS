@@ -110,7 +110,7 @@ export function ZTableLookup({ alpha, tail, critical }) {
         </p>
       ) : (
         <div
-          className="overflow-x-auto rounded-xl border"
+          className="overflow-x-auto rounded-md border border-border/80 bg-card"
           tabIndex={0}
           role="region"
           aria-label="Z-table excerpt"
@@ -120,9 +120,9 @@ export function ZTableLookup({ alpha, tail, critical }) {
               Excerpt of the standard normal table. Rows give z to one decimal; columns give the
               second decimal. Cells show the area to the left of z.
             </caption>
-            <thead className="bg-muted/70">
+            <thead className="bg-muted/80">
               <tr>
-                <th scope="col" className="px-2 py-2 text-left font-semibold">
+                <th scope="col" className="px-2.5 py-2 text-left font-semibold text-foreground">
                   z
                 </th>
                 {COLUMNS.map((column) => (
@@ -130,9 +130,9 @@ export function ZTableLookup({ alpha, tail, critical }) {
                     key={column}
                     scope="col"
                     className={cn(
-                      "px-2 py-2 text-right font-medium",
+                      "px-2 py-2 text-right font-medium text-muted-foreground",
                       lookup.cells.some((z) => Math.abs(((z * 100) % 10) - column * 100) < 1e-6) &&
-                        "text-primary",
+                        "font-semibold text-primary",
                     )}
                   >
                     {column.toFixed(2)}
@@ -142,11 +142,14 @@ export function ZTableLookup({ alpha, tail, critical }) {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row} className="border-t">
+                <tr
+                  key={row}
+                  className="border-t border-border/60 transition-colors hover:bg-muted/30"
+                >
                   <th
                     scope="row"
                     className={cn(
-                      "px-2 py-1.5 text-left font-semibold",
+                      "px-2.5 py-1.5 text-left font-semibold text-foreground",
                       row === centreRow && "text-primary",
                     )}
                   >
@@ -159,9 +162,9 @@ export function ZTableLookup({ alpha, tail, critical }) {
                       <td
                         key={column}
                         className={cn(
-                          "px-2 py-1.5 text-right",
+                          "px-2 py-1.5 text-right transition-colors",
                           hit
-                            ? "rounded-md bg-primary font-semibold text-primary-foreground"
+                            ? "rounded-sm bg-primary font-semibold text-primary-foreground"
                             : "text-muted-foreground",
                         )}
                         aria-current={hit ? "true" : undefined}

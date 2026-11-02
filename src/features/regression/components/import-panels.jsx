@@ -2,9 +2,10 @@
 
 import { FileSpreadsheet, Upload } from "lucide-react";
 import { useId, useRef, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -48,9 +49,9 @@ export function PastePanel({ onLoad }) {
 
   return (
     <div className="space-y-3">
-      <label htmlFor={`${id}-text`} className="text-sm font-medium">
+      <Label htmlFor={`${id}-text`} className="text-xs font-medium text-foreground">
         Paste from a spreadsheet, CSV or worksheet
-      </label>
+      </Label>
       <Textarea
         id={`${id}-text`}
         value={text}
@@ -60,7 +61,7 @@ export function PastePanel({ onLoad }) {
         placeholder={
           "Hours\tScore\n2\t62\n3\t65\n5\t70\n\nor two rows:\nX: 1 2 3 4 5\nY: 2 4 5 4 5"
         }
-        className="font-mono text-sm"
+        className="rounded-md font-mono text-xs sm:text-sm"
         aria-describedby={error ? `${id}-error` : `${id}-hint`}
         aria-invalid={error ? true : undefined}
       />
@@ -70,19 +71,24 @@ export function PastePanel({ onLoad }) {
       </p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Select value={layout} onValueChange={setLayout}>
-          <SelectTrigger className="sm:w-64" aria-label="Data layout">
+          <SelectTrigger
+            size="sm"
+            className="h-8 rounded-md text-xs sm:w-64"
+            aria-label="Data layout"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {LAYOUTS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.value} value={option.value} className="text-xs">
                 {option.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Button
-          className="sm:ml-auto"
+          size="sm"
+          className="h-8 rounded-md text-xs sm:ml-auto"
           disabled={text.trim() === ""}
           onClick={() => setError(importText(text, layout, onLoad))}
         >
@@ -129,13 +135,15 @@ export function UploadPanel({ onLoad }) {
           setDragging(false);
           readFile(event.dataTransfer.files[0]);
         }}
-        className={`flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors hover:border-primary/60 hover:bg-accent/40 ${dragging ? "border-primary bg-accent/60" : "border-border"}`}
+        className={`flex w-full flex-col items-center justify-center gap-2.5 rounded-lg border border-dashed px-6 py-8 text-center transition-colors hover:border-border hover:bg-muted/30 ${dragging ? "border-primary bg-muted/40" : "border-border/80"}`}
       >
-        <span className="grid size-12 place-items-center rounded-full bg-accent text-accent-foreground">
-          <Upload className="size-5" aria-hidden="true" />
+        <span className="grid size-10 place-items-center rounded-md bg-muted text-muted-foreground">
+          <Upload className="size-4" aria-hidden="true" />
         </span>
-        <span className="text-sm font-medium">Drop a CSV file here or click to browse</span>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-medium sm:text-sm">
+          Drop a CSV file here or click to browse
+        </span>
+        <span className="text-[11px] text-muted-foreground">
           First column = X, second column = Y. A header row is optional. .csv or .txt, up to 2 MB.
         </span>
       </button>

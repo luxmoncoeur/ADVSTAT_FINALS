@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Eraser, FlaskConical, Play, RefreshCw, Sparkles } from "lucide-react";
+import { Check, Eraser, FlaskConical, Play, RefreshCw } from "lucide-react";
 import { ComputeButton } from "@/components/shared/compute-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Reveal } from "@/components/shared/reveal";
@@ -39,7 +39,7 @@ function ProgressSteps({ progress }) {
           <li key={step.key} className="flex items-center gap-2">
             <span
               className={cn(
-                "grid size-6 shrink-0 place-items-center rounded-full border font-mono text-xs font-semibold transition-colors",
+                "grid size-6 shrink-0 place-items-center rounded-md border font-mono text-xs font-semibold transition-colors",
                 done
                   ? "border-primary bg-primary text-primary-foreground"
                   : "bg-card text-muted-foreground",
@@ -76,7 +76,7 @@ function SectionTitle({ number, id, children }) {
   return (
     <h2 id={id} className="flex items-center gap-2 text-sm font-semibold">
       <span
-        className="grid size-5 shrink-0 place-items-center rounded-full bg-primary font-mono text-[11px] text-primary-foreground"
+        className="grid size-5 shrink-0 place-items-center rounded-md border border-border/80 bg-muted font-mono text-[11px] font-semibold text-foreground"
         aria-hidden="true"
       >
         {number}
@@ -93,7 +93,10 @@ function TestingSentence({ zt }) {
   const shown = parsed === null ? (zt.test.nullField?.symbol ?? "0") : formatExact(parsed);
   const tail = TAILS.find((t) => t.value === zt.tail);
   return (
-    <p className="rounded-lg bg-muted/60 px-3 py-2 text-sm" aria-live="polite">
+    <p
+      className="rounded-lg border border-border/80 bg-muted/40 px-3 py-2 text-xs sm:text-sm"
+      aria-live="polite"
+    >
       Testing whether{" "}
       <span className="font-mono font-semibold">
         {zt.test.parameter} {tail?.operator} {shown}
@@ -108,7 +111,7 @@ function ScenarioPanel({ zt }) {
   const scenarios = scenariosFor(zt.testId);
   return (
     <div className="space-y-4">
-      <Card className="gap-4">
+      <Card className="gap-4 shadow-xs">
         <CardHeader>
           <CardTitle>Try a scenario</CardTitle>
           <CardDescription>
@@ -124,17 +127,17 @@ function ScenarioPanel({ zt }) {
                   <button
                     type="button"
                     onClick={() => zt.loadScenario(scenario, { autoCompute: true })}
-                    className="group flex h-full w-full flex-col gap-2 rounded-xl border bg-card p-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:hover:translate-y-0"
+                    className="group flex h-full w-full flex-col gap-2 rounded-lg border bg-card p-3.5 text-left shadow-xs transition-colors hover:border-primary/40 hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                   >
-                    <span className="font-medium">{scenario.title}</span>
+                    <span className="text-sm leading-snug font-semibold">{scenario.title}</span>
                     <span className="flex-1 text-xs leading-relaxed text-muted-foreground">
                       {scenario.story}
                     </span>
-                    <span className="flex flex-wrap items-center gap-1.5">
-                      <Badge variant="secondary" className="font-mono text-[11px]">
+                    <span className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <Badge variant="secondary" className="rounded-md font-mono text-[11px]">
                         Hₐ: {tail?.operator}
                       </Badge>
-                      <Badge variant="secondary" className="font-mono text-[11px]">
+                      <Badge variant="secondary" className="rounded-md font-mono text-[11px]">
                         α = {scenario.alpha}
                       </Badge>
                       <span className="ml-auto flex items-center gap-1 text-xs font-medium text-primary">
@@ -148,7 +151,7 @@ function ScenarioPanel({ zt }) {
           </ul>
         </CardContent>
       </Card>
-      <Card className="gap-3">
+      <Card className="gap-3 shadow-xs">
         <CardHeader>
           <CardTitle>How to read the result</CardTitle>
         </CardHeader>
@@ -159,7 +162,7 @@ function ScenarioPanel({ zt }) {
               ["Critical z", "The cut-off set by α. Beyond it is the red rejection region."],
               ["p-value", "Chance of a result this extreme if H₀ is true. If p ≤ α, reject H₀."],
             ].map(([term, text]) => (
-              <li key={term} className="rounded-lg border p-3">
+              <li key={term} className="rounded-lg border border-border/80 bg-card p-3 shadow-2xs">
                 <span className="font-mono text-sm font-semibold">{term}</span>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{text}</p>
               </li>
@@ -243,11 +246,21 @@ export function HypothesisWorkspace() {
               </section>
             </CardContent>
             <CardFooter className="gap-2 border-t px-4 pt-4">
-              <Button variant="outline" size="sm" onClick={zt.loadExample}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 rounded-md text-xs"
+                onClick={zt.loadExample}
+              >
                 Load example
               </Button>
-              <Button variant="ghost" size="sm" onClick={zt.reset}>
-                <Eraser className="size-4" aria-hidden="true" /> Clear
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 rounded-md text-xs"
+                onClick={zt.reset}
+              >
+                <Eraser className="size-3.5" aria-hidden="true" /> Clear
               </Button>
               <ComputeButton onClick={zt.compute} className="ml-auto" />
             </CardFooter>

@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/components/providers";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatExact, formatNumber } from "@/lib/format";
 
 const PAGE_SIZE = 25;
@@ -25,7 +26,7 @@ export function SumsTable({ result, labels }) {
   return (
     <div className="space-y-3">
       <div
-        className="overflow-x-auto rounded-xl border"
+        className="overflow-x-auto rounded-md border border-border/80 bg-card"
         tabIndex={0}
         role="region"
         aria-label="Computation table"
@@ -36,23 +37,63 @@ export function SumsTable({ result, labels }) {
           </caption>
           <thead className="bg-muted/70">
             <tr className="text-right font-mono text-xs text-muted-foreground">
-              <th scope="col" className="px-3 py-2.5 text-center font-medium">
+              <th scope="col" className="px-3 py-2 text-center font-medium">
                 #
               </th>
-              <th scope="col" className="px-3 py-2.5 font-medium">
+              <th scope="col" className="px-3 py-2 font-medium">
                 X
               </th>
-              <th scope="col" className="px-3 py-2.5 font-medium">
+              <th scope="col" className="px-3 py-2 font-medium">
                 Y
               </th>
-              <th scope="col" className="px-3 py-2.5 font-medium">
-                XY
+              <th scope="col" className="px-3 py-2 font-medium">
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <span
+                        tabIndex={0}
+                        className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                      >
+                        XY
+                      </span>
+                    }
+                  />
+                  <TooltipContent>Product of X and Y for each point</TooltipContent>
+                </Tooltip>
               </th>
-              <th scope="col" className="px-3 py-2.5 font-medium">
-                X²
+              <th scope="col" className="px-3 py-2 font-medium">
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <span
+                        tabIndex={0}
+                        className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                      >
+                        X²
+                      </span>
+                    }
+                  />
+                  <TooltipContent>
+                    Square of X (used to calculate slope and correlation)
+                  </TooltipContent>
+                </Tooltip>
               </th>
-              <th scope="col" className="px-3 py-2.5 font-medium">
-                Y²
+              <th scope="col" className="px-3 py-2 font-medium">
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <span
+                        tabIndex={0}
+                        className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                      >
+                        Y²
+                      </span>
+                    }
+                  />
+                  <TooltipContent>
+                    Square of Y (used to calculate total sum of squares)
+                  </TooltipContent>
+                </Tooltip>
               </th>
             </tr>
           </thead>
@@ -60,41 +101,41 @@ export function SumsTable({ result, labels }) {
             {visible.map((row, i) => (
               <tr
                 key={start + i}
-                className="border-t text-right transition-colors hover:bg-muted/40"
+                className="border-t border-border/60 text-right transition-colors hover:bg-muted/40"
               >
-                <td className="px-3 py-2 text-center text-xs text-muted-foreground">
+                <td className="px-3 py-1.5 text-center text-xs text-muted-foreground">
                   {start + i + 1}
                 </td>
-                <td className="px-3 py-2">{formatExact(row.x)}</td>
-                <td className="px-3 py-2">{formatExact(row.y)}</td>
-                <td className="px-3 py-2">{num(row.xy)}</td>
-                <td className="px-3 py-2">{num(row.x2)}</td>
-                <td className="px-3 py-2">{num(row.y2)}</td>
+                <td className="px-3 py-1.5">{formatExact(row.x)}</td>
+                <td className="px-3 py-1.5">{formatExact(row.y)}</td>
+                <td className="px-3 py-1.5">{num(row.xy)}</td>
+                <td className="px-3 py-1.5">{num(row.x2)}</td>
+                <td className="px-3 py-1.5">{num(row.y2)}</td>
               </tr>
             ))}
           </tbody>
           <tfoot className="font-mono tabular-nums">
-            <tr className="border-t-2 bg-accent/60 text-right font-semibold text-accent-foreground">
-              <th scope="row" className="px-3 py-2.5 text-center">
+            <tr className="border-t bg-muted/60 text-right font-semibold text-foreground">
+              <th scope="row" className="px-3 py-2 text-center">
                 Σ
               </th>
-              <td className="px-3 py-2.5">
+              <td className="px-3 py-2">
                 <span className="sr-only">ΣX = </span>
                 {num(result.sumX)}
               </td>
-              <td className="px-3 py-2.5">
+              <td className="px-3 py-2">
                 <span className="sr-only">ΣY = </span>
                 {num(result.sumY)}
               </td>
-              <td className="px-3 py-2.5">
+              <td className="px-3 py-2">
                 <span className="sr-only">ΣXY = </span>
                 {num(result.sumXY)}
               </td>
-              <td className="px-3 py-2.5">
+              <td className="px-3 py-2">
                 <span className="sr-only">ΣX² = </span>
                 {num(result.sumX2)}
               </td>
-              <td className="px-3 py-2.5">
+              <td className="px-3 py-2">
                 <span className="sr-only">ΣY² = </span>
                 {num(result.sumY2)}
               </td>
@@ -111,26 +152,26 @@ export function SumsTable({ result, labels }) {
             <Button
               variant="outline"
               size="icon"
-              className="size-8"
+              className="size-7 rounded-md"
               onClick={() => setPage(current - 1)}
               disabled={current === 0}
               aria-label="Previous rows"
             >
-              <ChevronLeft className="size-4" aria-hidden="true" />
+              <ChevronLeft className="size-3.5" aria-hidden="true" />
             </Button>
-            <span className="px-2 tabular-nums" aria-live="polite">
+            <span className="px-2 font-mono tabular-nums" aria-live="polite">
               Rows {start + 1}–{Math.min(start + PAGE_SIZE, result.rows.length)} of{" "}
               {result.rows.length}
             </span>
             <Button
               variant="outline"
               size="icon"
-              className="size-8"
+              className="size-7 rounded-md"
               onClick={() => setPage(current + 1)}
               disabled={current === pages - 1}
               aria-label="Next rows"
             >
-              <ChevronRight className="size-4" aria-hidden="true" />
+              <ChevronRight className="size-3.5" aria-hidden="true" />
             </Button>
           </div>
         ) : null}

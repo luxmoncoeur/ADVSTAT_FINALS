@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /**
- * Primary "Compute" action button with Apple tactile response.
+ * Primary "Compute" action button in sleek Shadcn style.
  * Compact, proportional, and fits cleanly into card footers.
  */
 export function ComputeButton({
@@ -16,9 +17,13 @@ export function ComputeButton({
   return (
     <Button
       type={type}
+      size="sm"
       onClick={onClick}
       disabled={disabled}
-      className={`h-8 w-auto shrink-0 rounded-[10px] bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 active:scale-[0.97] transition-all motion-reduce:active:scale-100 ${className}`}
+      className={cn(
+        "h-8 shrink-0 rounded-md px-3.5 text-xs font-medium shadow-xs transition-all active:scale-[0.98] motion-reduce:active:scale-100",
+        className,
+      )}
     >
       {children}
     </Button>

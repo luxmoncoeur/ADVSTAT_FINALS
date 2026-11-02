@@ -27,10 +27,15 @@ export function SolutionSteps({ steps }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground sm:text-sm">
           Values are computed at full precision and shown to {decimals} decimal places.
         </p>
-        <Button variant="ghost" size="sm" onClick={() => setOpen(allOpen ? [] : allIds)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 rounded-md text-xs"
+          onClick={() => setOpen(allOpen ? [] : allIds)}
+        >
           {allOpen ? "Collapse all" : "Expand all"}
         </Button>
       </div>
@@ -38,28 +43,30 @@ export function SolutionSteps({ steps }) {
         type="multiple"
         value={open}
         onValueChange={setOpen}
-        className="rounded-xl border bg-card"
+        className="rounded-xl border bg-card shadow-xs"
       >
         {steps.map((step, index) => (
           <AccordionItem key={step.id} value={step.id} className="px-4 last:border-b-0 sm:px-5">
-            <AccordionTrigger className="gap-3 py-4 hover:no-underline">
+            <AccordionTrigger className="gap-3 py-3.5 hover:no-underline">
               <span className="flex items-center gap-3 text-left">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent font-mono text-xs font-semibold text-accent-foreground">
+                <span className="grid size-6 shrink-0 place-items-center rounded-md border border-border/80 bg-muted font-mono text-xs font-semibold text-foreground">
                   {index + 1}
                 </span>
-                <span className="font-medium">{step.title}</span>
+                <span className="text-sm font-semibold text-foreground">{step.title}</span>
               </span>
             </AccordionTrigger>
-            <AccordionContent className="space-y-3 pb-5 pl-0 sm:pl-10">
-              <p className="font-mono text-xs text-muted-foreground sm:text-sm">{step.formula}</p>
-              <p className="rounded-lg bg-muted/70 px-3 py-2.5 font-mono text-sm leading-relaxed break-words whitespace-pre-wrap text-foreground tabular-nums sm:text-base">
+            <AccordionContent className="space-y-3 pb-5 pl-0 sm:pl-9">
+              <p className="rounded-md border border-border/60 bg-muted/30 px-3 py-2 font-mono text-xs text-muted-foreground sm:text-sm">
+                {step.formula}
+              </p>
+              <p className="rounded-md border bg-muted/50 px-3 py-2.5 font-mono text-sm leading-relaxed break-words whitespace-pre-wrap text-foreground tabular-nums sm:text-base">
                 {step.substitution.map((token, i) => (
                   <span key={i} className={typeof token === "string" ? undefined : "font-semibold"}>
                     {formatToken(token, decimals)}
                   </span>
                 ))}
               </p>
-              <p className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="flex gap-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                 <Lightbulb className="mt-0.5 size-4 shrink-0 text-chart-3" aria-hidden="true" />
                 <span>{step.explanation}</span>
               </p>
