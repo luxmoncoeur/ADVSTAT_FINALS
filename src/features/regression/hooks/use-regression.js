@@ -37,11 +37,19 @@ export function readRows(rows) {
 }
 
 /** State and actions for the regression workspace. */
-export function useRegression() {
-  const [rows, setRows] = useState(() => blankRows(5));
-  const [labels, setLabels] = useState({ x: "X", y: "Y" });
+export function useRegression(initialData = null) {
+  const [rows, setRows] = useState(() =>
+    initialData
+      ? initialData.x.map((x, i) => newRow(String(x), String(initialData.y[i])))
+      : blankRows(5),
+  );
+  const [labels, setLabels] = useState(() =>
+    initialData ? { x: initialData.xLabel, y: initialData.yLabel } : { x: "X", y: "Y" },
+  );
   const [submitted, setSubmitted] = useState(
-    /** @type {{ xs: number[], ys: number[] } | null} */ (null),
+    /** @type {{ xs: number[], ys: number[] } | null} */ (
+      initialData ? { xs: initialData.x, ys: initialData.y } : null
+    ),
   );
   const [showErrors, setShowErrors] = useState(false);
 

@@ -147,9 +147,7 @@ export function HypothesesPanel({
                 tabIndex={0}
                 className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
               >
-                <span className="text-muted-foreground">
-                  H₀:{" "}
-                </span>
+                <span className="text-muted-foreground">H₀: </span>
                 {test.parameter} = {shown}
               </p>
             }
@@ -165,9 +163,7 @@ export function HypothesesPanel({
                 tabIndex={0}
                 className="focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
               >
-                <span className="text-muted-foreground">
-                  Hₐ:{" "}
-                </span>
+                <span className="text-muted-foreground">Hₐ: </span>
                 {test.parameter} {operator} {shown}
               </p>
             }

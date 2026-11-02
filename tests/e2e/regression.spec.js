@@ -61,4 +61,11 @@ test.describe("Simple linear regression", () => {
     await page.getByRole("button", { name: "Use this data" }).click();
     await expect(page.getByText(/correlation coefficient r is undefined/)).toBeVisible();
   });
+
+  test("loads and computes directly when navigating with example query param", async ({ page }) => {
+    await page.goto("/regression?example=advertising#results");
+    await shows(page, "Ad spend vs. sales");
+    await expect(page.getByText(/Computed from sample/)).toBeVisible();
+    await expect(page.getByText("Step-by-step solution")).toBeVisible();
+  });
 });
