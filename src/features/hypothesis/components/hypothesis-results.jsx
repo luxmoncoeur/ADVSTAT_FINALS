@@ -41,8 +41,7 @@ function Stat({ label, children, tone, tooltip }) {
     <dt
       className={cn(
         "text-[11px] font-medium whitespace-nowrap text-muted-foreground",
-        tooltip &&
-          "focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
+        tooltip && "focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
       )}
       tabIndex={tooltip ? 0 : undefined}
     >
@@ -223,10 +222,7 @@ export function ZTestDetails({ result }) {
                   render={
                     <div className="flex items-center gap-2">
                       <Switch id="show-p" checked={showPValue} onCheckedChange={setShowPValue} />
-                      <Label
-                        htmlFor="show-p"
-                        className="text-xs font-normal text-muted-foreground"
-                      >
+                      <Label htmlFor="show-p" className="text-xs font-normal text-muted-foreground">
                         p-value area
                       </Label>
                     </div>

@@ -10,10 +10,13 @@ import {
   Database,
   FlaskConical,
   Layers,
+  Search,
   Sigma,
   SlidersHorizontal,
+  X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   Area,
@@ -52,7 +55,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { buildCurve } from "@/features/hypothesis/components/normal-curve-chart";
-import { REGRESSION_EXAMPLES } from "@/features/regression/examples";
+import { DATASET_CATEGORIES, REGRESSION_EXAMPLES } from "@/features/regression/examples";
 import { formatNumber } from "@/lib/format";
 import {
   classifyCorrelation,
@@ -65,6 +68,7 @@ import {
 const FEATURED_DATASETS = REGRESSION_EXAMPLES.slice(0, 6);
 
 export function Dashboard() {
+  const router = useRouter();
   const { decimals } = useSettings();
   const [selectedDatasetId, setSelectedDatasetId] = useState(FEATURED_DATASETS[0].id);
 
@@ -72,6 +76,33 @@ export function Dashboard() {
   const [sampleMean, setSampleMean] = useState("510");
   const [alpha, setAlpha] = useState("0.05");
   const [tail, setTail] = useState("two");
+
+  // Sample Datasets tab filters
+  const [datasetCategory, setDatasetCategory] = useState("all");
+  const [datasetSearch, setDatasetSearch] = useState("");
+
+  const categoryCounts = useMemo(() => {
+    const counts = { all: REGRESSION_EXAMPLES.length };
+    for (const item of REGRESSION_EXAMPLES) {
+      counts[item.category] = (counts[item.category] || 0) + 1;
+    }
+    return counts;
+  }, []);
+
+  const filteredDatasets = useMemo(() => {
+    const query = datasetSearch.trim().toLowerCase();
+    return REGRESSION_EXAMPLES.filter((item) => {
+      const matchesCategory =
+        datasetCategory === "all" || item.category.toLowerCase() === datasetCategory.toLowerCase();
+      const matchesQuery =
+        query === "" ||
+        item.name.toLowerCase().includes(query) ||
+        item.xLabel.toLowerCase().includes(query) ||
+        item.yLabel.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query);
+      return matchesCategory && matchesQuery;
+    });
+  }, [datasetCategory, datasetSearch]);
 
   // Live Correlation interpreter control
   const [rInput, setRInput] = useState("0.85");
@@ -454,7 +485,7 @@ export function Dashboard() {
                   </Tooltip>
                 </div>
                 <Button asChild size="sm" className="h-7 rounded-md px-3 text-xs">
-                  <Link href="/regression">
+                  <Link href={`/regression?example=${selectedDatasetId}#results`}>
                     Full Regression Lab
                     <ArrowRight className="size-3.5" aria-hidden="true" />
                   </Link>
@@ -894,55 +925,196 @@ export function Dashboard() {
         {/* TAB 3: SAMPLE DATASETS */}
         <TabsContent value="datasets">
           <Card className="rounded-xl shadow-xs">
-            <CardHeader>
-              <CardTitle className="text-base">Curated Practice Datasets</CardTitle>
-              <CardDescription className="text-xs">
-                Inspect bivariate practice datasets or open directly in the Regression workspace
-              </CardDescription>
+            <CardHeader className="gap-3 pb-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <CardTitle className="text-base font-semibold">
+                    Curated Practice Datasets
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Choose any dataset to jump directly into its full step-by-step computation and
+                    visual analysis.
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="font-mono text-xs">
+                  {filteredDatasets.length} of {REGRESSION_EXAMPLES.length} datasets
+                </Badge>
+              </div>
+
+              {/* Filters Toolbar */}
+              <div className="flex flex-col gap-2.5 pt-1 lg:flex-row lg:items-center lg:justify-between">
+                {/* Category Pills */}
+                <div
+                  className="flex flex-wrap items-center gap-1.5"
+                  role="group"
+                  aria-label="Dataset categories"
+                >
+                  <Button
+                    type="button"
+                    variant={datasetCategory === "all" ? "default" : "outline"}
+                    size="xs"
+                    onClick={() => setDatasetCategory("all")}
+                    className="h-7 shrink-0 rounded-md px-2.5 text-xs font-medium"
+                  >
+                    All ({categoryCounts.all})
+                  </Button>
+                  {DATASET_CATEGORIES.map((cat) => (
+                    <Button
+                      key={cat}
+                      type="button"
+                      variant={datasetCategory === cat ? "default" : "outline"}
+                      size="xs"
+                      onClick={() => setDatasetCategory(cat)}
+                      className="h-7 shrink-0 rounded-md px-2.5 text-xs font-medium"
+                    >
+                      {cat} ({categoryCounts[cat] || 0})
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Search Input */}
+                <div className="relative w-full lg:w-64">
+                  <Search
+                    className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <Input
+                    type="text"
+                    value={datasetSearch}
+                    onChange={(e) => setDatasetSearch(e.target.value)}
+                    placeholder="Search name or variables..."
+                    className="h-7 rounded-md pr-7 pl-8 text-xs"
+                  />
+                  {datasetSearch ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDatasetSearch("")}
+                      className="absolute top-1/2 right-1 size-5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label="Clear search"
+                    >
+                      <X className="size-3" />
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
             </CardHeader>
+
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs">Dataset</TableHead>
-                    <TableHead className="text-xs">Category</TableHead>
-                    <TableHead className="text-xs">Variables (X → Y)</TableHead>
-                    <TableHead className="text-right font-mono text-xs">n</TableHead>
-                    <TableHead className="text-right font-mono text-xs">Pearson r</TableHead>
-                    <TableHead className="text-right text-xs">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {REGRESSION_EXAMPLES.slice(0, 8).map((item) => {
-                    const calc = linearRegression(item.x, item.y);
-                    const rVal = calc.ok ? calc.value.r : 0;
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell className="text-xs font-medium">{item.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="rounded-md text-[11px]">
-                            {item.category}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {item.xLabel} → {item.yLabel}
-                        </TableCell>
-                        <TableCell className="text-right font-mono text-xs">
-                          {item.x.length}
-                        </TableCell>
-                        <TableCell className="text-right font-mono text-xs font-semibold tabular-nums">
-                          {formatNumber(rVal, 3)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button asChild variant="ghost" size="xs" className="rounded-md">
-                            <Link href="/regression">Open ↗</Link>
+              <div className="min-h-[340px] overflow-x-auto rounded-lg border border-border/70">
+                <Table className="w-full min-w-[680px] table-fixed">
+                  <TableHeader className="bg-muted/30">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="w-[28%] text-xs">Dataset</TableHead>
+                      <TableHead className="w-[16%] text-xs">Category</TableHead>
+                      <TableHead className="w-[28%] text-xs">Variables (X → Y)</TableHead>
+                      <TableHead className="w-[7%] text-right font-mono text-xs">n</TableHead>
+                      <TableHead className="w-[11%] text-right font-mono text-xs">
+                        Pearson r
+                      </TableHead>
+                      <TableHead className="w-[10%] min-w-[95px] text-center text-xs">
+                        Action
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="[&_tr:last-child]:border-b [&_tr:last-child]:border-border/70">
+                    {filteredDatasets.length > 0 ? (
+                      filteredDatasets.map((item) => {
+                        const calc = linearRegression(item.x, item.y);
+                        const rVal = calc.ok ? calc.value.r : 0;
+                        const strength = calc.ok ? calc.value.strength : "—";
+                        const direction = calc.ok ? calc.value.direction : "";
+
+                        return (
+                          <TableRow
+                            key={item.id}
+                            onClick={() => router.push(`/regression?example=${item.id}#results`)}
+                            className="group cursor-pointer border-b border-border/70 transition-colors hover:bg-muted/50"
+                          >
+                            <TableCell className="truncate text-xs font-medium">
+                              <span className="block truncate font-semibold text-foreground transition-colors group-hover:text-primary">
+                                {item.name}
+                              </span>
+                            </TableCell>
+                            <TableCell className="truncate">
+                              <Badge variant="outline" className="rounded-md font-mono text-[11px]">
+                                {item.category}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="truncate font-mono text-xs text-muted-foreground">
+                              <span className="block truncate">
+                                {item.xLabel} <span className="text-foreground/70">→</span>{" "}
+                                {item.yLabel}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right font-mono text-xs text-muted-foreground">
+                              {item.x.length}
+                            </TableCell>
+                            <TableCell className="text-right font-mono text-xs font-semibold tabular-nums">
+                              <Tooltip>
+                                <TooltipTrigger
+                                  render={
+                                    <span
+                                      className={
+                                        rVal >= 0
+                                          ? "text-emerald-700 dark:text-emerald-400"
+                                          : "text-amber-700 dark:text-amber-400"
+                                      }
+                                    >
+                                      {rVal > 0
+                                        ? `+${formatNumber(rVal, 3)}`
+                                        : formatNumber(rVal, 3)}
+                                    </span>
+                                  }
+                                />
+                                <TooltipContent>
+                                  {strength} {direction} correlation (r = {formatNumber(rVal, 4)})
+                                </TooltipContent>
+                              </Tooltip>
+                            </TableCell>
+                            <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex justify-center">
+                                <Button
+                                  asChild
+                                  size="xs"
+                                  variant="outline"
+                                  className="h-7 gap-1 rounded-md px-2.5 text-xs font-medium transition-colors group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
+                                >
+                                  <Link href={`/regression?example=${item.id}#results`}>
+                                    Compute
+                                    <ArrowRight className="size-3" aria-hidden="true" />
+                                  </Link>
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
+                      <TableRow className="border-b border-border/70">
+                        <TableCell
+                          colSpan={6}
+                          className="py-12 text-center text-xs text-muted-foreground"
+                        >
+                          No datasets found matching &quot;{datasetSearch}&quot;.
+                          <Button
+                            variant="link"
+                            size="xs"
+                            onClick={() => {
+                              setDatasetSearch("");
+                              setDatasetCategory("all");
+                            }}
+                            className="ml-2 text-xs"
+                          >
+                            Reset filters
                           </Button>
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

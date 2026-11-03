@@ -31,8 +31,7 @@ export function ResultCard({
     <p
       className={cn(
         "text-xs font-medium tracking-wide text-muted-foreground uppercase",
-        tooltip &&
-          "focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
+        tooltip && "focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
       )}
       tabIndex={tooltip ? 0 : undefined}
     >
