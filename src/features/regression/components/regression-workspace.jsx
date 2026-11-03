@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef } from "react";
 import {
   ChartScatter,
   ClipboardPaste,
@@ -53,11 +53,16 @@ function StartPanel({ onPick }) {
   );
 }
 
+const sameValues = (a, b) => a.length === b.length && a.every((value, i) => value === b[i]);
+
 export function RegressionWorkspace() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const exampleId = searchParams?.get("example") || searchParams?.get("dataset");
+  // Dashboard links open a dataset with `?example=<id>` (`?dataset=<id>` also works).
+  const exampleId = searchParams.get("example") || searchParams.get("dataset");
   const initialPreset = useMemo(
-    () => (exampleId ? REGRESSION_EXAMPLES.find((item) => item.id === exampleId) || null : null),
+    () => REGRESSION_EXAMPLES.find((item) => item.id === exampleId) ?? null,
     [exampleId],
   );
 
@@ -65,47 +70,47 @@ export function RegressionWorkspace() {
   const { labels, parsed, outcome, stale } = regression;
   const result = outcome?.ok ? outcome.value : null;
 
+  // Name the sample only while the computed data is still exactly that sample.
   const activePreset = useMemo(() => {
-    if (!result) return null;
+    if (!result || stale) return null;
     return (
       REGRESSION_EXAMPLES.find(
-        (item) =>
-          item.id === exampleId ||
-          (item.xLabel === labels.x &&
-            item.yLabel === labels.y &&
-            item.x.length === parsed.xs.length &&
-            item.x.every((val, i) => val === parsed.xs[i])),
-      ) || null
+        (item) => sameValues(item.x, parsed.xs) && sameValues(item.y, parsed.ys),
+      ) ?? null
     );
-  }, [exampleId, labels, parsed, result]);
+  }, [parsed, result, stale]);
 
   const pickExample = (example) => {
     regression.loadData(example.x, example.y, { x: example.xLabel, y: example.yLabel });
   };
 
-  const lastLoadedIdRef = useRef(initialPreset?.id || null);
-
+  // A new `?example=` while the page is open (client navigation) loads that dataset.
+  const lastLoadedIdRef = useRef(initialPreset?.id ?? null);
   useEffect(() => {
-    if (!exampleId || lastLoadedIdRef.current === exampleId) return;
-    const match = REGRESSION_EXAMPLES.find((item) => item.id === exampleId);
-    if (match) {
-      lastLoadedIdRef.current = exampleId;
-      regression.loadData(match.x, match.y, { x: match.xLabel, y: match.yLabel });
-    }
-  }, [exampleId, regression]);
-
-  useEffect(() => {
-    if (initialPreset && typeof window !== "undefined") {
-      const timer = setTimeout(() => {
-        const hash = window.location.hash ? window.location.hash.slice(1) : "results";
-        const target = document.getElementById(hash) || document.getElementById("results");
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 100);
-      return () => clearTimeout(timer);
-    }
+    if (!initialPreset || lastLoadedIdRef.current === initialPreset.id) return;
+    lastLoadedIdRef.current = initialPreset.id;
+    pickExample(initialPreset);
+    // Only react to the URL, not to a new pickExample identity on each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPreset]);
+
+  useEffect(() => {
+    if (!initialPreset) return;
+    const timer = setTimeout(() => {
+      const target =
+        document.getElementById(window.location.hash.slice(1) || "results") ??
+        document.getElementById("results");
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [initialPreset]);
+
+  const clear = () => {
+    regression.clear();
+    // Drop `?example=` too, or the URL would point at a dataset that is no longer loaded.
+    lastLoadedIdRef.current = null;
+    if (exampleId) router.replace(pathname, { scroll: false });
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-5 p-4 sm:p-6">
@@ -181,15 +186,7 @@ export function RegressionWorkspace() {
               </Tabs>
             </CardContent>
             <CardFooter className="gap-2 border-t px-4 pt-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 rounded-md text-xs"
-                onClick={() => {
-                  lastLoadedIdRef.current = null;
-                  regression.clear();
-                }}
-              >
+              <Button variant="ghost" size="sm" className="h-8 rounded-md text-xs" onClick={clear}>
                 <Eraser className="size-3.5" aria-hidden="true" /> Clear
               </Button>
               <Badge variant="outline" className="h-8 rounded-md font-mono text-xs tabular-nums">
@@ -205,7 +202,7 @@ export function RegressionWorkspace() {
           className="min-w-0 scroll-mt-20 space-y-4 xl:col-span-8"
           aria-live="polite"
         >
-          {activePreset && result ? (
+          {activePreset ? (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/80 bg-muted/40 px-3.5 py-2.5 shadow-2xs">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary" className="rounded-md font-mono text-[11px]">

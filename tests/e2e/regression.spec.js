@@ -68,4 +68,30 @@ test.describe("Simple linear regression", () => {
     await expect(page.getByText(/Computed from sample/)).toBeVisible();
     await expect(page.getByText("Step-by-step solution")).toBeVisible();
   });
+
+  test("Clear empties a dataset opened from the URL and keeps it empty", async ({ page }) => {
+    await page.goto("/regression?example=advertising");
+    await expect(page.getByText(/Computed from sample/)).toBeVisible();
+    await page.getByRole("button", { name: "Clear" }).click();
+    await expect(page).not.toHaveURL(/example=/);
+    await expect(page.getByText("Start with a dataset")).toBeVisible();
+    await expect(page.getByText(/Computed from sample/)).toHaveCount(0);
+  });
+
+  test("the sample banner follows the data, not the URL", async ({ page }) => {
+    await page.goto("/regression?example=advertising");
+    await expect(page.getByText(/Computed from sample/)).toBeVisible();
+
+    await page.getByRole("button", { name: /Datasets/ }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: /Study hours/ })
+      .click();
+    await shows(page, "Ŷ = 57.0435 + 2.5342X");
+    await expect(page.getByText("Ad spend vs. sales")).toHaveCount(0);
+
+    // Edited data is no longer the sample, so the banner goes away.
+    await page.getByRole("textbox", { name: "Row 1, X" }).fill("99");
+    await expect(page.getByText(/Computed from sample/)).toHaveCount(0);
+  });
 });
