@@ -66,7 +66,7 @@ test("keyboard users can reach the main content and run a test", async ({ page, 
   test.skip(isMobile, "keyboard flow is checked on desktop and tablet");
   await page.goto("/hypothesis");
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
   await page.getByRole("button", { name: "Load example" }).focus();
   await page.keyboard.press("Enter");
   await page.getByRole("button", { name: "Compute" }).focus();
