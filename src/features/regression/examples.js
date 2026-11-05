@@ -15,20 +15,12 @@ export const REGRESSION_EXAMPLES = [
   {
     id: "study-hours",
     category: "Education",
-    name: "Study hours vs. exam score",
+    name: "Study hours vs. exam score (paper example)",
     xLabel: "Hours studied",
     yLabel: "Exam score",
-    x: [2, 3, 5, 7, 9, 10, 12, 15],
-    y: [62, 65, 70, 74, 80, 82, 88, 95],
-  },
-  {
-    id: "textbook",
-    category: "Education",
-    name: "Textbook example (5 points)",
-    xLabel: "X",
-    yLabel: "Y",
+    // Worked example in Section 2.1.6 of the project paper: Y = 46.5 + 7.5X, r ≈ 0.993.
     x: [1, 2, 3, 4, 5],
-    y: [2, 4, 5, 4, 5],
+    y: [55, 60, 70, 75, 85],
   },
   {
     id: "absences",
@@ -119,15 +111,6 @@ export const REGRESSION_EXAMPLES = [
     yLabel: "Fuel economy (km/L)",
     x: [1.0, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.4, 2.5, 3.0, 3.5],
     y: [21.5, 19.8, 19.2, 17.6, 16.9, 15.4, 14.1, 12.6, 12.9, 10.8, 9.7],
-  },
-  {
-    id: "temperature",
-    category: "Everyday",
-    name: "Temperature vs. ice cream sales",
-    xLabel: "Temperature (°C)",
-    yLabel: "Sales (units)",
-    x: [24.5, 26.1, 27.3, 28.8, 29.4, 30.2, 31.7, 32.5, 33.1, 34.6],
-    y: [215, 238, 241, 280, 296, 302, 335, 341, 370, 392],
   },
   {
     id: "electricity",

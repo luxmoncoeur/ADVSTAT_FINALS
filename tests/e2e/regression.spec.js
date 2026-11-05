@@ -14,11 +14,11 @@ test.describe("Simple linear regression", () => {
       .getByRole("dialog")
       .getByRole("button", { name: /Study hours/ })
       .click();
-    // b = 2856 / 1127, a = 77 − b·7.875, r = 0.99928…
-    await shows(page, "Ŷ = 57.0435 + 2.5342X");
-    await shows(page, "0.9993");
+    // Paper Section 2.1.6: b = 375 / 50 = 7.5, a = (345 − 7.5·15) / 5 = 46.5, r = 375 / √142500 ≈ 0.9934
+    await shows(page, "Ŷ = 46.5000 + 7.5000X");
+    await shows(page, "0.9934");
     await shows(page, "Very strong positive");
-    await expect(page.getByRole("img", { name: /Scatter diagram of 8 points/ })).toBeVisible();
+    await expect(page.getByRole("img", { name: /Scatter diagram of 5 points/ })).toBeVisible();
   });
 
   test("accepts pasted data in two rows and shows the worked solution", async ({ page }) => {
@@ -35,11 +35,11 @@ test.describe("Simple linear regression", () => {
     await page.getByRole("button", { name: /Datasets/ }).click();
     await page
       .getByRole("dialog")
-      .getByRole("button", { name: /Textbook/ })
+      .getByRole("button", { name: /Study hours/ })
       .click();
     await page.getByRole("combobox", { name: /Decimal places/ }).click();
     await page.getByRole("option", { name: "2" }).click();
-    await shows(page, "Ŷ = 2.20 + 0.60X");
+    await shows(page, "Ŷ = 46.50 + 7.50X");
   });
 
   test("rejects invalid cells instead of guessing", async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe("Simple linear regression", () => {
       .getByRole("dialog")
       .getByRole("button", { name: /Study hours/ })
       .click();
-    await shows(page, "Ŷ = 57.0435 + 2.5342X");
+    await shows(page, "Ŷ = 46.5000 + 7.5000X");
     await expect(page.getByText("Ad spend vs. sales")).toHaveCount(0);
 
     // Edited data is no longer the sample, so the banner goes away.

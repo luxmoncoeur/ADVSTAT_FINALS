@@ -73,7 +73,7 @@ export function Dashboard() {
   const [selectedDatasetId, setSelectedDatasetId] = useState(FEATURED_DATASETS[0].id);
 
   // Live Z-test workbench controls
-  const [sampleMean, setSampleMean] = useState("510");
+  const [sampleMean, setSampleMean] = useState("41.8");
   const [alpha, setAlpha] = useState("0.05");
   const [tail, setTail] = useState("two");
 
@@ -118,11 +118,11 @@ export function Dashboard() {
   }, [activeDataset]);
 
   const ztest = useMemo(() => {
-    const parsedMean = parseNumber(sampleMean) ?? 510;
+    const parsedMean = parseNumber(sampleMean) ?? 41.8;
     const res = oneMeanZTest({
       sampleMean: parsedMean,
-      mu0: 500,
-      sigma: 30,
+      mu0: 40,
+      sigma: 5,
       n: 36,
       alpha: Number(alpha),
       tail: /** @type {'two'|'left'|'right'} */ (tail),
@@ -696,7 +696,7 @@ export function Dashboard() {
 
               <CardFooter className="justify-between border-t border-border/60 bg-muted/30 py-3">
                 <span className="font-mono text-xs text-muted-foreground">
-                  μ₀ = 500 · σ = 30 · n = 36
+                  μ₀ = 40 · σ = 5 · n = 36
                 </span>
                 <Button asChild size="sm" variant="outline" className="h-7 rounded-md px-3 text-xs">
                   <Link href="/hypothesis">
