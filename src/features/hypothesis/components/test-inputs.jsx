@@ -187,11 +187,11 @@ export function HypothesesPanel({
         </summary>
         <div className="grid gap-3 p-3.5">
           {[
-            ["h0", "Null hypothesis H₀", "e.g. The mean battery life is 500 hours."],
+            ["h0", "Null hypothesis H₀", "e.g. The mean battery life is 40 hours."],
             [
               "ha",
               "Alternative hypothesis Hₐ",
-              "e.g. The mean battery life is different from 500 hours.",
+              "e.g. The mean battery life is different from 40 hours.",
             ],
           ].map(([key, label, placeholder]) => (
             <div key={key} className="grid gap-1.5">

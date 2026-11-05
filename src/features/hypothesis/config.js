@@ -37,15 +37,16 @@ export const TESTS = {
     ],
     run: oneMeanZTest,
     example: {
-      values: { mu0: "500", sampleMean: "510", sigma: "30", n: "36" },
+      // Worked example in Section 2.2.8 of the project paper: z ≈ 2.16, reject H₀ at α = 0.05.
+      values: { mu0: "40", sampleMean: "41.8", sigma: "5", n: "36" },
       tail: "two",
       alpha: "0.05",
       statements: {
-        h0: "The mean battery life is 500 hours.",
-        ha: "The mean battery life is different from 500 hours.",
+        h0: "The mean laptop battery life is 40 hours.",
+        ha: "The mean laptop battery life is different from 40 hours.",
       },
       story:
-        "A manufacturer claims its batteries last 500 hours on average (σ = 30). A sample of 36 batteries has a mean life of 510 hours.",
+        "A manufacturer claims its laptop battery lasts 40 hours on average (σ = 5). A random sample of 36 batteries has a mean life of 41.8 hours.",
     },
   },
   "one-proportion": {

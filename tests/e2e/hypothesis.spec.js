@@ -4,8 +4,8 @@ const shows = (page, text) => expect(page.getByText(text, { exact: true }).first
 
 /** Expected values worked by hand for each built-in example. */
 const CASES = [
-  // z = (510 − 500) / (30/√36) = 2
-  { test: "One mean", z: "2.0000", critical: "±1.9600", p: "0.0455", decision: "Reject H₀" },
+  // Paper Section 2.2.8: z = (41.8 − 40) / (5/√36) = 1.8 / 0.8333 = 2.16
+  { test: "One mean", z: "2.1600", critical: "±1.9600", p: "0.0308", decision: "Reject H₀" },
   // p̂ = 130/250 = 0.52, SE = √(0.6·0.4/250), z = −0.08/0.030984 = −2.5820
   { test: "One proportion", z: "−2.5820", critical: "−1.6449", p: "0.0049", decision: "Reject H₀" },
   // z = 3 / √(36/36 + 64/64) = 3/√2 = 2.1213
