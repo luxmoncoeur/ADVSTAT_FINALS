@@ -192,7 +192,7 @@ export function HypothesisWorkspace() {
       <TestPicker value={zt.testId} onChange={zt.chooseTest} />
 
       <div className="grid items-start gap-4 xl:grid-cols-12">
-        <Reveal className="xl:col-span-5" distance={16}>
+        <Reveal className="min-w-0 xl:col-span-5" distance={16}>
           <Card className="gap-4 py-4">
             <CardHeader className="px-4">
               <CardTitle>{zt.test.title} z-test</CardTitle>
