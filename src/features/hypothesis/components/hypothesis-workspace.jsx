@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { TAILS, scenariosFor } from "../config";
 import { useZTest } from "../hooks/use-ztest";
 import { VerdictCard, ZTestDetails } from "./hypothesis-results";
+import { HypothesisReport } from "./hypothesis-report";
 import { AlphaPanel, HypothesesPanel, SampleInputs, TestPicker } from "./test-inputs";
 
 const STEPS = [
@@ -191,7 +192,7 @@ export function HypothesisWorkspace() {
       <TestPicker value={zt.testId} onChange={zt.chooseTest} />
 
       <div className="grid items-start gap-4 xl:grid-cols-12">
-        <Reveal className="xl:col-span-5" distance={16}>
+        <Reveal className="min-w-0 xl:col-span-5" distance={16}>
           <Card className="gap-4 py-4">
             <CardHeader className="px-4">
               <CardTitle>{zt.test.title} z-test</CardTitle>
@@ -285,7 +286,10 @@ export function HypothesisWorkspace() {
           {result ? (
             <>
               <VerdictCard result={result} statements={zt.submitted?.statements} />
-              <ZTestDetails result={result} />
+              <ZTestDetails
+                result={result}
+                action={<HypothesisReport result={result} submitted={zt.submitted} />}
+              />
             </>
           ) : (
             <ScenarioPanel zt={zt} />

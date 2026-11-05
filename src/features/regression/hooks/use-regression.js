@@ -83,6 +83,7 @@ export function useRegression(initialData = null) {
 
   const clear = useCallback(() => {
     setRows(blankRows(5));
+    setLabels({ x: "X", y: "Y" });
     setSubmitted(null);
     setShowErrors(false);
   }, []);

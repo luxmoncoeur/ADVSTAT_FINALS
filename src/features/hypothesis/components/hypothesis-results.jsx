@@ -190,7 +190,7 @@ export function VerdictCard({ result, statements }) {
 }
 
 /** Curve, formal conclusion, z-table and worked solution. */
-export function ZTestDetails({ result }) {
+export function ZTestDetails({ result, action = null }) {
   const [showPValue, setShowPValue] = useState(true);
   const zc = /** @type {number} */ (
     result.tail === "left" ? result.critical.lower : result.critical.upper
@@ -247,6 +247,7 @@ export function ZTestDetails({ result }) {
             <CardDescription>
               Formal conclusion, the step-by-step solution and the z-table lookup.
             </CardDescription>
+            {action ? <CardAction>{action}</CardAction> : null}
           </CardHeader>
           <CardContent>
             <p className="mb-4 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-xs leading-relaxed font-medium text-foreground sm:text-sm">

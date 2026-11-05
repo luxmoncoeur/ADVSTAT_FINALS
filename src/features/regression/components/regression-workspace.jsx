@@ -34,6 +34,7 @@ import { useRegression } from "../hooks/use-regression";
 import { DataTableEditor } from "./data-table-editor";
 import { DatasetDialog, DatasetGrid } from "./dataset-gallery";
 import { PastePanel, UploadPanel } from "./import-panels";
+import { RegressionReport } from "./regression-report";
 import { RegressionKpis, RegressionSolution, RegressionVisuals } from "./regression-results";
 
 function StartPanel({ onPick }) {
@@ -248,7 +249,11 @@ export function RegressionWorkspace() {
 
       {result ? (
         <div id="solution" className="scroll-mt-20">
-          <RegressionSolution result={result} labels={labels} />
+          <RegressionSolution
+            result={result}
+            labels={labels}
+            action={<RegressionReport result={result} labels={labels} />}
+          />
         </div>
       ) : null}
     </div>

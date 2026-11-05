@@ -184,18 +184,20 @@ export function Dashboard() {
       {/* Main Shadcn Tabs Container */}
       <Tabs defaultValue="overview" className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <TabsList className="h-9 rounded-lg bg-muted p-1">
-            <TabsTrigger value="overview" className="rounded-md px-3 text-xs">
-              <Layers className="size-3.5" aria-hidden="true" />
+          {/* Short labels without icons on phones, so the tab bar never makes the page scroll sideways. */}
+          <TabsList className="h-9 w-full max-w-full rounded-lg bg-muted p-1 sm:w-fit">
+            <TabsTrigger value="overview" className="rounded-md px-2 text-xs sm:px-3">
+              <Layers className="hidden size-3.5 sm:block" aria-hidden="true" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="calculators" className="rounded-md px-3 text-xs">
-              <Calculator className="size-3.5" aria-hidden="true" />
-              Quick Calculators
+            <TabsTrigger value="calculators" className="rounded-md px-2 text-xs sm:px-3">
+              <Calculator className="hidden size-3.5 sm:block" aria-hidden="true" />
+              <span className="hidden sm:inline">Quick </span>Calculators
             </TabsTrigger>
-            <TabsTrigger value="datasets" className="rounded-md px-3 text-xs">
-              <Database className="size-3.5" aria-hidden="true" />
-              Sample Datasets ({REGRESSION_EXAMPLES.length})
+            <TabsTrigger value="datasets" className="rounded-md px-2 text-xs sm:px-3">
+              <Database className="hidden size-3.5 sm:block" aria-hidden="true" />
+              <span className="hidden sm:inline">Sample </span>Datasets (
+              {REGRESSION_EXAMPLES.length})
             </TabsTrigger>
           </TabsList>
 
