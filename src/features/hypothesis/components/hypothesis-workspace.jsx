@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { TAILS, scenariosFor } from "../config";
 import { useZTest } from "../hooks/use-ztest";
 import { VerdictCard, ZTestDetails } from "./hypothesis-results";
+import { HypothesisReport } from "./hypothesis-report";
 import { AlphaPanel, HypothesesPanel, SampleInputs, TestPicker } from "./test-inputs";
 
 const STEPS = [
@@ -285,7 +286,10 @@ export function HypothesisWorkspace() {
           {result ? (
             <>
               <VerdictCard result={result} statements={zt.submitted?.statements} />
-              <ZTestDetails result={result} />
+              <ZTestDetails
+                result={result}
+                action={<HypothesisReport result={result} submitted={zt.submitted} />}
+              />
             </>
           ) : (
             <ScenarioPanel zt={zt} />
