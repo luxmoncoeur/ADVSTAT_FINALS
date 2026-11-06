@@ -1,8 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { SiteHeader } from "@/components/layout/site-header";
 import { Providers } from "@/components/providers";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -36,15 +33,7 @@ export default function RootLayout({ children }) {
           Skip to main content
         </a>
         <Providers>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset className="min-w-0">
-              <SiteHeader />
-              <main id="main" tabIndex={-1} className="flex-1 outline-none">
-                {children}
-              </main>
-            </SidebarInset>
-          </SidebarProvider>
+          {children}
         </Providers>
       </body>
     </html>
