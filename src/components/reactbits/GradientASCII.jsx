@@ -207,6 +207,7 @@ uniform float uCount;
 uniform float uDensity;
 uniform float uOpacity;
 uniform float uFlicker;
+uniform float uMix;
 uniform float uDepth;
 uniform float uGlyphTime;
 uniform float uSeedValue;
@@ -234,7 +235,7 @@ vec4 glyphAt(vec2 px) {
   float pick = hash12(cell + uSeedValue * 7.31);
   float level = hash12(cell * 1.73 + 4.1 + uSeedValue);
   float tick = floor(uGlyphTime * 9.0 + level * 9.0);
-  float wobble = (hash12(cell * 2.31 + tick * 17.7) - 0.5) * uFlicker * 0.4 + (level - 0.5) * 0.1;
+  float wobble = (hash12(cell * 2.31 + tick * 17.7) - 0.5) * uFlicker * 0.4 + (level - 0.5) * uMix;
   float tone = clamp(pow(value, 0.75) + wobble, 0.0, 1.0);
   float index = floor(tone * (uCount - 1.0) + 0.5);
   float decode = max(aux.g, 1.0 - aux.r);
@@ -432,6 +433,7 @@ const GradientASCII = ({
   glow = 0.2,
   depthOfField = 0,
   flicker = 0.2,
+  mix = 0.1,
   softness = 0.5,
   scale = 1,
   flow = 0.5,
@@ -463,6 +465,7 @@ const GradientASCII = ({
     glow: clamp(glow, 0, 2),
     depthOfField: clamp(depthOfField, 0, 1),
     flicker: clamp(flicker, 0, 1),
+    mix: clamp(mix, 0, 1),
     softness: clamp(softness, 0, 1),
     scale: clamp(scale, 0.4, 2.5),
     flow: clamp(flow, 0, 2),
@@ -609,6 +612,7 @@ const GradientASCII = ({
       gl.uniform1f(u.uDensity, s.density);
       gl.uniform1f(u.uOpacity, s.glyphOpacity);
       gl.uniform1f(u.uFlicker, reduce ? 0 : s.flicker);
+      gl.uniform1f(u.uMix, s.mix);
       gl.uniform1f(u.uDepth, s.depthOfField);
       gl.uniform1f(u.uGlyphTime, glyphTime);
       gl.uniform1f(u.uSeedValue, s.variation);

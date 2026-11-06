@@ -70,10 +70,11 @@ export function LandingPage() {
               colors={
                 isDark
                   ? ["#1e3fd8", "#4f46e5", "#38bdf8", "#e0f2fe"]
-                  : ["#1e3fd8", "#4338ca", "#2563eb", "#93b4fb"]
+                  : ["#1e3fd8", "#4f46e5", "#60a5fa", "#c7d2fe"]
               }
               shape="horizon"
               characters=" .=+xX0S8#@"
+              mix={0.45}
               cellSize={18}
               density={0.8}
               glyphOpacity={isDark ? 0.85 : 0.8}
