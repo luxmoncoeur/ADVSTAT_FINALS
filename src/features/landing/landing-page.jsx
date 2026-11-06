@@ -283,7 +283,13 @@ export function LandingPage() {
             <span className="text-sm font-semibold tracking-[-0.02em]">ADVSTAT</span>
             <span className="text-sm text-muted-foreground">Advanced Statistics Workstation</span>
           </p>
-          <p className="text-sm text-muted-foreground">Checked against SciPy and statsmodels.</p>
+          <p className="text-sm text-muted-foreground">
+            Made by{" "}
+            <Link href="/about" className="font-medium text-foreground underline-offset-4 hover:underline">
+              BSIT-3A
+            </Link>
+            . Checked against SciPy and statsmodels.
+          </p>
         </div>
       </footer>
     </>

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const PATHS = ["/", "/dashboard", "/regression", "/regression?example=study-hours", "/hypothesis", "/learn"];
+const PATHS = ["/", "/dashboard", "/regression", "/regression?example=study-hours", "/hypothesis", "/learn", "/about"];
 
 /** Width of the page content beyond the screen, in CSS pixels (0 = no sideways scrolling). */
 const overflow = (page) =>
