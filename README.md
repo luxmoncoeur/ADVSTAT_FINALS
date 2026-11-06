@@ -1,6 +1,21 @@
-# AnalytIQ Studio — Statistics Lab
+<p align="center">
+  <img src="public/brand/stats-logo.png" alt="AnalytIQ Studio logo" width="112" height="112" />
+</p>
 
-> Run linear regression and Z-tests in your browser, with every step of the solution shown.
+<h1 align="center">AnalytIQ Studio</h1>
+
+<p align="center">
+  <strong>Statistics Lab</strong> — run linear regression and Z-tests in your browser, with every step of the solution shown.
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> ·
+  <a href="#installation">Installation</a> ·
+  <a href="#commands">Commands</a> ·
+  <a href="#tech-stack">Tech Stack</a>
+</p>
+
+---
 
 ## Introduction
 
@@ -35,6 +50,10 @@ The app is built for learning. Results match standard statistical software, and 
 
 - A reference page with every formula the app uses, decision rules, a table of common critical values, and a full standard normal (Z) table.
 
+### Printable Reports
+
+- Open a clean report of any regression or hypothesis test result, with the inputs, answer, and worked solution together. Print it or save it as a PDF from the browser.
+
 ### General
 
 - Light and dark themes.
@@ -46,21 +65,28 @@ The app is built for learning. Results match standard statistical software, and 
 
 ```
 AnalytIQ-Studio/
+├── public/
+│   └── brand/                  # Logo files
 ├── src/
-│   ├── app/                    # Pages (Next.js App Router)
-│   │   ├── page.js             # Dashboard
-│   │   ├── regression/         # Linear regression page
-│   │   ├── hypothesis/         # Hypothesis testing page
-│   │   └── learn/              # Formulas & Z-table page
+│   ├── app/                    # Routes (Next.js App Router)
+│   │   ├── page.js             # Landing page
+│   │   └── (workspace)/        # Pages that share the sidebar layout
+│   │       ├── dashboard/
+│   │       ├── regression/     # Linear regression
+│   │       ├── hypothesis/     # Hypothesis testing
+│   │       ├── learn/          # Formulas & Z-table
+│   │       └── about/          # About the project and the team
 │   ├── components/
-│   │   ├── layout/             # Sidebar, header, navigation
-│   │   ├── shared/             # Reusable pieces (result cards, number fields, solution steps)
+│   │   ├── layout/             # Sidebar, header, navigation, logo
+│   │   ├── shared/             # Reusable pieces (result cards, number fields, solution steps, reports)
 │   │   └── ui/                 # Base UI components (shadcn/ui)
 │   ├── features/
+│   │   ├── landing/            # Landing page sections and figures
 │   │   ├── dashboard/
 │   │   ├── regression/         # Data entry, charts, results, example datasets
 │   │   ├── hypothesis/         # Test inputs, normal curve, Z-table, explanations
-│   │   └── learn/
+│   │   ├── learn/
+│   │   └── about/              # Project info and team members
 │   ├── hooks/                  # Shared React hooks
 │   └── lib/
 │       ├── stats/              # Statistics engine (regression, Z-tests, normal distribution)
@@ -165,7 +191,8 @@ npm run fixtures
 ---
 
 <p align="center">
+  <img src="public/brand/stats-logo-128.png" alt="" width="40" height="40" /><br />
   <strong>AnalytIQ Studio — Statistics Lab</strong><br />
-  Built as a final project for Advanced Statistics.<br />
+  Built by BSIT-3A as a final project for Advanced Statistics.<br />
   <sub>© 2026 AnalytIQ Studio team. All rights reserved.</sub>
 </p>
