@@ -8,6 +8,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { REGRESSION_EXAMPLES } from "@/features/regression/examples";
 import { formatNumber } from "@/lib/format";
 import { linearRegression } from "@/lib/stats";
+import { trackSpotlight } from "@/components/shared/spotlight";
 
 /** Short labels for the datasets offered in the hero figure. */
 export const HERO_DATASETS = [
@@ -40,7 +41,11 @@ export function RegressionFigure({ datasetId, onDatasetChange }) {
   const line = [fit.minX, fit.maxX].map((x) => ({ x, y: fit.intercept + fit.slope * x }));
 
   return (
-    <figure className="overflow-hidden rounded-2xl border bg-card">
+    <figure
+      className="panel overflow-hidden rounded-2xl border bg-card"
+      data-spotlight
+      onPointerMove={trackSpotlight}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-5">
         <ToggleGroup
           type="single"
@@ -50,15 +55,15 @@ export function RegressionFigure({ datasetId, onDatasetChange }) {
           value={datasetId}
           onValueChange={(v) => v && onDatasetChange(v)}
           aria-label="Choose a sample dataset"
-          className="max-w-full flex-wrap"
+          className="w-full sm:w-auto"
         >
           {HERO_DATASETS.map((d) => (
-            <ToggleGroupItem key={d.id} value={d.id} className="h-8 px-3 text-[13px]">
+            <ToggleGroupItem key={d.id} value={d.id} className="h-8 flex-auto px-2 text-[13px] sm:flex-none sm:px-3">
               {d.label}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-        <span className="font-mono text-xs text-muted-foreground tabular-nums">n = {fit.n}</span>
+        <span className="hidden font-mono text-xs text-muted-foreground tabular-nums sm:inline">n = {fit.n}</span>
       </div>
 
       <div className="px-2 pt-4 pb-1 sm:px-4">
@@ -111,6 +116,8 @@ export function RegressionFigure({ datasetId, onDatasetChange }) {
           </span>
           <span className="text-muted-foreground">r = {formatNumber(fit.r, 3)}</span>
           <span className="text-muted-foreground">R² = {formatNumber(fit.rSquared, 3)}</span>
+          {/* On phones the header has no room for n, so it joins the stats line. */}
+          <span className="text-muted-foreground sm:hidden">n = {fit.n}</span>
         </p>
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{dataset.xLabel}</span> against{" "}

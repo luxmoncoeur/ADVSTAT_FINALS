@@ -27,7 +27,7 @@ export function LandingHeader() {
             <Link
               key={href}
               href={href}
-              className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground"
             >
               {label}
             </Link>

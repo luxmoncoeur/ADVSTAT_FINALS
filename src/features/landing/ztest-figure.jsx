@@ -10,6 +10,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { buildCurve } from "@/features/hypothesis/components/normal-curve-chart";
 import { formatNumber, formatPValue } from "@/lib/format";
 import { oneMeanZTest } from "@/lib/stats";
+import { trackSpotlight } from "@/components/shared/spotlight";
 
 const MU0 = 40;
 const SIGMA = 5;
@@ -52,7 +53,11 @@ export function ZTestFigure() {
       : formatNumber(tail === "left" ? result.critical.lower : result.critical.upper, 3);
 
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card">
+    <div
+      className="panel overflow-hidden rounded-2xl border bg-card"
+      data-spotlight
+      onPointerMove={trackSpotlight}
+    >
       <div className="grid gap-5 border-b p-4 sm:p-5 md:grid-cols-[1.4fr_1fr_1fr]">
         <div className="grid gap-2">
           <label htmlFor={sliderId} className="flex items-baseline justify-between text-sm">
