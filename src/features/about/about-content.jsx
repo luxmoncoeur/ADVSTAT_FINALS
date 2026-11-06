@@ -12,14 +12,14 @@ const ITEMS = MEMBERS.map((name, i) => ({
   tone: /** @type {1|2|3|4|5} */ ((i % 5) + 1),
 }));
 
-/** About page in the workspace: what ADVSTAT is, then the class that built it. */
+/** About page in the workspace: what AnalytIQ Studio is, then the class that built it. */
 export function AboutContent() {
   return (
     <div className="mx-auto w-full max-w-[1200px] space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         eyebrow="About"
         icon={Info}
-        title="About ADVSTAT"
+        title="About AnalytIQ Studio"
         description="A statistics workstation for simple linear regression and Z-tests that shows every sum, formula and decision rule behind the answer. Results are checked against SciPy and statsmodels. Built by BSIT-3A."
       />
 

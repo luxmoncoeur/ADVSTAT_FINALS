@@ -126,7 +126,9 @@ export function SiteHeader() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage className="font-medium">{current?.title ?? "ADVSTAT"}</BreadcrumbPage>
+            <BreadcrumbPage className="font-medium">
+              {current?.title ?? "AnalytIQ Studio"}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

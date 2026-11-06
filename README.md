@@ -1,10 +1,10 @@
-# ADVSTAT — Statistics Lab
+# AnalytIQ Studio — Statistics Lab
 
 > Run linear regression and Z-tests in your browser, with every step of the solution shown.
 
 ## Introduction
 
-ADVSTAT is a web app for two core topics in introductory statistics: **simple linear regression** and **Z-based hypothesis testing**. You enter your data or sample values, and ADVSTAT gives you the answer along with the full worked solution, charts, and a plain-language interpretation.
+AnalytIQ Studio is a web app for two core topics in introductory statistics: **simple linear regression** and **Z-based hypothesis testing**. You enter your data or sample values, and AnalytIQ Studio gives you the answer along with the full worked solution, charts, and a plain-language interpretation.
 
 The app is built for learning. Results match standard statistical software, and each formula is shown next to the numbers it produced, so you can check every step against your own work.
 
@@ -45,7 +45,7 @@ The app is built for learning. Results match standard statistical software, and 
 ## Project Structure
 
 ```
-ADVSTAT_FINALS/
+AnalytIQ-Studio/
 ├── src/
 │   ├── app/                    # Pages (Next.js App Router)
 │   │   ├── page.js             # Dashboard
@@ -92,8 +92,8 @@ The statistics engine in `src/lib/stats/` contains plain JavaScript functions wi
 1. Clone the repository and open the project folder:
 
    ```bash
-   git clone https://github.com/luxmoncoeur/ADVSTAT_FINALS.git
-   cd ADVSTAT_FINALS
+   git clone https://github.com/luxmoncoeur/AnalytIQ-Studio.git
+   cd AnalytIQ-Studio
    ```
 
 2. Install dependencies:
@@ -165,7 +165,7 @@ npm run fixtures
 ---
 
 <p align="center">
-  <strong>ADVSTAT — Statistics Lab</strong><br />
+  <strong>AnalytIQ Studio — Statistics Lab</strong><br />
   Built as a final project for Advanced Statistics.<br />
-  <sub>© 2026 ADVSTAT team. All rights reserved.</sub>
+  <sub>© 2026 AnalytIQ Studio team. All rights reserved.</sub>
 </p>

@@ -57,7 +57,7 @@ export function ReportDialog({ title, subtitle, children }) {
           <header className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-foreground pb-3">
             <div>
               <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                ADVSTAT · Statistics Lab
+                AnalytIQ Studio · Statistics Lab
               </p>
               <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
               <p className="text-sm text-muted-foreground">{subtitle}</p>
@@ -66,8 +66,8 @@ export function ReportDialog({ title, subtitle, children }) {
           </header>
           {children}
           <footer className="border-t pt-3 text-xs text-muted-foreground">
-            Computed by ADVSTAT at full precision; values shown rounded. Formulas are listed on the
-            Formulas &amp; Z-Table page.
+            Computed by AnalytIQ Studio at full precision; values shown rounded. Formulas are listed
+            on the Formulas &amp; Z-Table page.
           </footer>
         </article>
       </DialogContent>

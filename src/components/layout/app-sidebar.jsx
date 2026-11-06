@@ -32,14 +32,14 @@ export function AppSidebar() {
             <SidebarMenuButton
               size="lg"
               asChild
-              tooltip="ADVSTAT home"
+              tooltip="AnalytIQ Studio home"
               className="transition-transform active:scale-[0.98]"
             >
               <Link href="/" onClick={() => setOpenMobile(false)}>
                 <BrandMark />
                 <span className="grid leading-tight">
                   <span className="text-base font-semibold tracking-[-0.02em] text-foreground">
-                    ADVSTAT
+                    AnalytIQ Studio
                   </span>
                   <span className="text-xs font-medium text-muted-foreground">Statistics Lab</span>
                 </span>

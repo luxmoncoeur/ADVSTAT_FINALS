@@ -6,7 +6,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata = {
-  title: { default: "ADVSTAT — Statistics Lab", template: "%s · ADVSTAT" },
+  title: { default: "AnalytIQ Studio — Statistics Lab", template: "%s · AnalytIQ Studio" },
   description:
     "Simple linear regression and Z-based hypothesis testing with step-by-step solutions, verified against SciPy and statsmodels.",
 };
