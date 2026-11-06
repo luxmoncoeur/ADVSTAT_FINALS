@@ -198,7 +198,7 @@ export function HypothesisWorkspace() {
               <CardTitle>{zt.test.title} z-test</CardTitle>
               <CardDescription>{zt.test.description}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6 px-4">
+            <CardContent className="space-y-4 px-4">
               <TestingSentence zt={zt} />
               <section aria-labelledby="sec-hyp" className="space-y-3">
                 <SectionTitle number={1} id="sec-hyp">

@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  // Let tunnels (ngrok) load dev-only assets; production builds ignore this.
+  allowedDevOrigins: ["*.ngrok-free.dev", "*.ngrok-free.app", "*.ngrok.app"],
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,

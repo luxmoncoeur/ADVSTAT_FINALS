@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatNumber } from "@/lib/format";
 import { useFit } from "./regression-figure";
+import { trackSpotlight } from "@/components/shared/spotlight";
 
 /** The least-squares solution as a ledger: every line is computed from the dataset above it. */
 export function Worksheet({ datasetId }) {
@@ -28,7 +29,11 @@ export function Worksheet({ datasetId }) {
   ];
 
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card">
+    <div
+      className="panel overflow-hidden rounded-2xl border bg-card"
+      data-spotlight
+      onPointerMove={trackSpotlight}
+    >
       <Table className="text-[15px]">
         <TableHeader>
           <TableRow className="hover:bg-transparent">

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const PATHS = ["/", "/dashboard", "/regression", "/regression?example=study-hours", "/hypothesis", "/learn"];
+const PATHS = ["/", "/dashboard", "/regression", "/regression?example=study-hours", "/hypothesis", "/learn", "/about"];
 
 /** Width of the page content beyond the screen, in CSS pixels (0 = no sideways scrolling). */
 const overflow = (page) =>
@@ -16,6 +16,15 @@ for (const width of [320, 375]) {
         await expect.poll(() => overflow(page)).toBeLessThanOrEqual(0);
       });
     }
+
+    test("the computation table scrolls inside its box, not the page", async ({ page }) => {
+      await page.goto("/regression?example=car-age");
+      await page.getByRole("tab", { name: "Computation table" }).click();
+      const table = page.getByRole("region", { name: "Computation table" });
+      await expect(table).toBeVisible();
+      await expect.poll(() => overflow(page)).toBeLessThanOrEqual(0);
+      expect(await table.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    });
 
     test("opening the theme menu does not shift the page", async ({ page }) => {
       await page.goto("/dashboard");

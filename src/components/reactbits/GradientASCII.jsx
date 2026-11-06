@@ -207,6 +207,7 @@ uniform float uCount;
 uniform float uDensity;
 uniform float uOpacity;
 uniform float uFlicker;
+uniform float uMix;
 uniform float uDepth;
 uniform float uGlyphTime;
 uniform float uSeedValue;
@@ -234,7 +235,7 @@ vec4 glyphAt(vec2 px) {
   float pick = hash12(cell + uSeedValue * 7.31);
   float level = hash12(cell * 1.73 + 4.1 + uSeedValue);
   float tick = floor(uGlyphTime * 9.0 + level * 9.0);
-  float wobble = (hash12(cell * 2.31 + tick * 17.7) - 0.5) * uFlicker * 0.4 + (level - 0.5) * 0.1;
+  float wobble = (hash12(cell * 2.31 + tick * 17.7) - 0.5) * uFlicker * 0.4 + (level - 0.5) * uMix;
   float tone = clamp(pow(value, 0.75) + wobble, 0.0, 1.0);
   float index = floor(tone * (uCount - 1.0) + 0.5);
   float decode = max(aux.g, 1.0 - aux.r);
@@ -432,6 +433,7 @@ const GradientASCII = ({
   glow = 0.2,
   depthOfField = 0,
   flicker = 0.2,
+  mix = 0.1,
   softness = 0.5,
   scale = 1,
   flow = 0.5,
@@ -451,7 +453,6 @@ const GradientASCII = ({
   ...rest
 }) => {
   const containerRef = useRef(null);
-  const canvasRef = useRef(null);
   const wakeRef = useRef(null);
   const palette = (Array.isArray(colors) && colors.length ? colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
   const settings = {
@@ -464,6 +465,7 @@ const GradientASCII = ({
     glow: clamp(glow, 0, 2),
     depthOfField: clamp(depthOfField, 0, 1),
     flicker: clamp(flicker, 0, 1),
+    mix: clamp(mix, 0, 1),
     softness: clamp(softness, 0, 1),
     scale: clamp(scale, 0.4, 2.5),
     flow: clamp(flow, 0, 2),
@@ -484,21 +486,34 @@ const GradientASCII = ({
 
   useEffect(() => {
     const container = containerRef.current;
-    const canvas = canvasRef.current;
-    const gl = canvas?.getContext('webgl2', {
+    if (!container) return undefined;
+    // Make a fresh canvas on every mount. The cleanup below calls loseContext(),
+    // and React's dev double-mount would otherwise reuse that dead canvas,
+    // leaving the field blank (Chrome's "sad face" context-lost icon).
+    const canvas = document.createElement('canvas');
+    canvas.className = 'gradient-ascii-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    container.appendChild(canvas);
+    const gl = canvas.getContext('webgl2', {
       alpha: true,
       premultipliedAlpha: true,
       antialias: false,
       depth: false,
       stencil: false
     });
-    if (!container || !canvas || !gl) return undefined;
+    if (!gl) {
+      canvas.remove();
+      return undefined;
+    }
 
     const field = link(gl, FIELD);
     const halo = link(gl, HALO);
     const blur = link(gl, BLUR);
     const composite = link(gl, COMPOSITE);
-    if (!field || !halo || !blur || !composite) return undefined;
+    if (!field || !halo || !blur || !composite) {
+      canvas.remove();
+      return undefined;
+    }
     const vao = gl.createVertexArray();
     const fieldTarget = createTarget(gl, 2);
     const haloA = createTarget(gl, 1);
@@ -597,6 +612,7 @@ const GradientASCII = ({
       gl.uniform1f(u.uDensity, s.density);
       gl.uniform1f(u.uOpacity, s.glyphOpacity);
       gl.uniform1f(u.uFlicker, reduce ? 0 : s.flicker);
+      gl.uniform1f(u.uMix, s.mix);
       gl.uniform1f(u.uDepth, s.depthOfField);
       gl.uniform1f(u.uGlyphTime, glyphTime);
       gl.uniform1f(u.uSeedValue, s.variation);
@@ -825,6 +841,7 @@ const GradientASCII = ({
       gl.deleteVertexArray(vao);
       [field, halo, blur, composite].forEach(item => gl.deleteProgram(item.program));
       gl.getExtension('WEBGL_lose_context')?.loseContext();
+      canvas.remove();
     };
   }, []);
 
@@ -838,9 +855,7 @@ const GradientASCII = ({
       className={`gradient-ascii-container${className ? ` ${className}` : ''}`}
       style={style}
       {...rest}
-    >
-      <canvas ref={canvasRef} className="gradient-ascii-canvas" aria-hidden="true" />
-    </div>
+    />
   );
 };
 

@@ -91,3 +91,20 @@ export function TypographyBlockquote({ className, ...props }) {
     />
   );
 }
+
+/** Small mono kicker above a section heading, e.g. "01 · Worked sums". */
+export function TypographyEyebrow({ className, index, children, ...props }) {
+  return (
+    <p
+      className={cn(
+        "mb-4 flex items-center gap-2 font-mono text-xs tracking-wide text-muted-foreground uppercase",
+        className,
+      )}
+      {...props}
+    >
+      {index ? <span className="text-primary tabular-nums">{index}</span> : null}
+      {index ? <span aria-hidden="true" className="h-px w-5 bg-border" /> : null}
+      {children}
+    </p>
+  );
+}

@@ -1,4 +1,4 @@
-import { BookOpenText, ChartScatter, FlaskConical, LayoutDashboard } from "lucide-react";
+import { BookOpenText, ChartScatter, FlaskConical, Info, LayoutDashboard } from "lucide-react";
 
 export const NAV_GROUPS = [
   {
@@ -26,6 +26,7 @@ export const NAV_GROUPS = [
     label: "Learn",
     items: [
       { title: "Formulas & Z-Table", href: "/learn", icon: BookOpenText, description: "Reference" },
+      { title: "About", href: "/about", icon: Info, description: "BSIT-3A" },
     ],
   },
 ];

@@ -1,0 +1,19 @@
+/** BSIT-3A class list, as given by the class (surname first). */
+export const MEMBERS = [
+  "Lat, Gio Angelo L.",
+  "Lat, Pauline Mae R.",
+  "Llanes, Stephen Lawrence B.",
+  "Martinez, Prince Rupert T.",
+  "Melendres, Lee Andrei V.",
+  "Molina, Ma. Guillena B.",
+  "Ocampo, Marco R.",
+  "Ongy, Christian Benedict R.",
+  "Palmero, Jerome L.",
+  "Pesa, Jonadab A.",
+  "Posadas, Arvin John J.",
+  "Raboy, Liam Paul S.",
+  "Rizaldo, Gabriel Rudolf G.",
+  "Salazar, Catherine Joy P.",
+  "Udani, Gwyneth Crystal Anne M.",
+  "Villanueva, Julien John G.",
+];

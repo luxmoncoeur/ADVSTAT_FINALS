@@ -241,3 +241,60 @@
     margin: 16mm 14mm;
   }
 }
+
+/* ---------- Premium surface details (subtle, shared) ---------- */
+
+/* Raised panel: hairline top highlight + soft, wide shadow. */
+.panel {
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklch, var(--foreground) 5%, transparent),
+    0 1px 2px 0 rgb(0 0 0 / 0.04),
+    0 16px 40px -20px rgb(0 0 0 / 0.18);
+}
+.dark .panel {
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklch, var(--foreground) 7%, transparent),
+    0 1px 2px 0 rgb(0 0 0 / 0.3),
+    0 24px 56px -28px rgb(0 0 0 / 0.7);
+}
+
+/* Pointer spotlight: a faint primary glow that follows the cursor (mouse only). */
+.panel[data-spotlight]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  background: radial-gradient(
+    420px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    color-mix(in oklch, var(--primary) 8%, transparent),
+    transparent 65%
+  );
+}
+@media (hover: hover) and (pointer: fine) {
+  .panel[data-spotlight]:hover::after {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel[data-spotlight]::after {
+    transition: none;
+  }
+}
+
+
+/* Hero ASCII field: on phones and tablets it sits around the chart (lower half);
+   on desktop it sits behind the chart on the right. */
+.hero-field-mask {
+  --hero-mask: radial-gradient(150% 75% at 60% 78%, #000 28%, rgb(0 0 0 / 0.5) 62%, transparent 95%);
+  -webkit-mask-image: var(--hero-mask);
+  mask-image: var(--hero-mask);
+}
+@media (min-width: 64rem) {
+  .hero-field-mask {
+    --hero-mask: radial-gradient(125% 95% at 68% 45%, #000 32%, rgb(0 0 0 / 0.45) 68%, transparent 96%);
+  }
+}

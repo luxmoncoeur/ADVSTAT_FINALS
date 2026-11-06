@@ -25,7 +25,8 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full">
+      {/* Extensions like Grammarly add attributes to <body> before React loads. */}
+      <body className="min-h-full" suppressHydrationWarning>
         <a
           href="#main"
           className="sr-only z-50 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

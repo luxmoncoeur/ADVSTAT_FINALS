@@ -76,7 +76,7 @@ export function RegressionKpis({ result }) {
         label="Strength"
         icon={DirectionIcon}
         className="col-span-2 sm:col-span-2 2xl:col-span-1"
-        valueClassName="font-sans text-lg"
+        valueClassName="font-sans text-lg leading-snug sm:text-xl"
         tooltip="Qualitative interpretation of linear correlation based on |r|"
         hint="From |r| on the scale"
       >
@@ -86,7 +86,7 @@ export function RegressionKpis({ result }) {
         label="Correlation (r)"
         className="sm:col-span-3 2xl:col-span-1"
         icon={Activity}
-        valueClassName="text-xl"
+        valueClassName="text-2xl"
         tooltip="Pearson correlation coefficient: direction and strength of linear relationship (−1 ≤ r ≤ +1)"
         hint={result.r === null ? "All Y values are equal" : "−1 ≤ r ≤ +1"}
       >
@@ -96,7 +96,7 @@ export function RegressionKpis({ result }) {
         label="Determination (r²)"
         className="sm:col-span-3 2xl:col-span-1"
         icon={Gauge}
-        valueClassName="text-xl"
+        valueClassName="text-2xl"
         tooltip="Coefficient of determination: proportion of total variance in Y explained by the model"
         hint={
           result.rSquared === null
@@ -173,7 +173,7 @@ export function RegressionVisuals({ result, labels }) {
                 </TabsList>
               </CardAction>
             </CardHeader>
-            <CardContent className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
+            <CardContent className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_17rem]">
               <div className="min-w-0 space-y-3">
                 <TabsContent value="scatter" className="space-y-3">
                   <div className="flex flex-wrap gap-x-5 gap-y-2">
@@ -204,7 +204,7 @@ export function RegressionVisuals({ result, labels }) {
                 </TabsContent>
               </div>
               <aside
-                className="space-y-5 border-t pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6"
+                className="space-y-4 border-t pt-4 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-5"
                 aria-label="Strength of relationship"
               >
                 {result.r !== null && result.rSquared !== null ? (
@@ -239,8 +239,8 @@ export function RegressionVisuals({ result, labels }) {
 /** Below the charts: worked solution beside the interpretation and prediction. */
 export function RegressionSolution({ result, labels, action = null }) {
   return (
-    <div className="grid items-start gap-4 xl:grid-cols-12">
-      <Reveal className="xl:col-span-7">
+    <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-12">
+      <Reveal className="min-w-0 xl:col-span-7">
         <Card>
           <CardHeader>
             <CardTitle>Step-by-step solution</CardTitle>
@@ -263,7 +263,7 @@ export function RegressionSolution({ result, labels, action = null }) {
           </CardContent>
         </Card>
       </Reveal>
-      <div className="space-y-4 xl:col-span-5">
+      <div className="min-w-0 space-y-4 xl:col-span-5">
         <Reveal>
           <Card>
             <CardHeader>

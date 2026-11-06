@@ -24,6 +24,7 @@ const PAGES = [
     },
   },
   { path: "/learn", name: "learn" },
+  { path: "/about", name: "about" },
 ];
 
 for (const scheme of ["light", "dark"]) {
