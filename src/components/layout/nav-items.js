@@ -3,7 +3,7 @@ import { BookOpenText, ChartScatter, FlaskConical, LayoutDashboard } from "lucid
 export const NAV_GROUPS = [
   {
     label: "Overview",
-    items: [{ title: "Dashboard", href: "/", icon: LayoutDashboard, description: "Start here" }],
+    items: [{ title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Start here" }],
   },
   {
     label: "Analyses",

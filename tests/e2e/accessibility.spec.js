@@ -2,7 +2,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const PAGES = [
-  { path: "/", name: "dashboard" },
+  { path: "/", name: "landing" },
+  { path: "/dashboard", name: "dashboard" },
   {
     path: "/regression",
     name: "regression with results",

@@ -30,7 +30,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NAV_ITEMS } from "./nav-items";
 
-function ThemeToggle() {
+export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   return (
     <DropdownMenu>

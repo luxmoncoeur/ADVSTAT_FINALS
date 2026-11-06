@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const PATHS = ["/", "/regression", "/regression?example=study-hours", "/hypothesis", "/learn"];
+const PATHS = ["/", "/dashboard", "/regression", "/regression?example=study-hours", "/hypothesis", "/learn"];
 
 /** Width of the page content beyond the screen, in CSS pixels (0 = no sideways scrolling). */
 const overflow = (page) =>
@@ -18,7 +18,7 @@ for (const width of [320, 375]) {
     }
 
     test("opening the theme menu does not shift the page", async ({ page }) => {
-      await page.goto("/");
+      await page.goto("/dashboard");
       await page.getByRole("button", { name: "Change color theme" }).click();
       await expect(page.getByRole("menuitemradio", { name: "Dark" })).toBeVisible();
       expect(await overflow(page)).toBeLessThanOrEqual(0);
