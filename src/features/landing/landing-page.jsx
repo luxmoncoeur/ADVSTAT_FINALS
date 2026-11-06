@@ -70,15 +70,15 @@ export function LandingPage() {
               colors={
                 isDark
                   ? ["#1e3fd8", "#4f46e5", "#38bdf8", "#e0f2fe"]
-                  : ["#2544d8", "#6366f1", "#7dd3fc", "#eef4ff"]
+                  : ["#1e3fd8", "#4338ca", "#2563eb", "#93b4fb"]
               }
               shape="horizon"
               characters=" .=+xX0S8#@"
               cellSize={18}
               density={0.8}
-              glyphOpacity={isDark ? 0.85 : 0.6}
-              gradientOpacity={isDark ? 0.78 : 0.5}
-              glow={isDark ? 0.24 : 0.12}
+              glyphOpacity={isDark ? 0.85 : 0.8}
+              gradientOpacity={isDark ? 0.78 : 0.62}
+              glow={isDark ? 0.24 : 0.16}
               softness={0.58}
               flow={0.5}
               speed={0.85}
