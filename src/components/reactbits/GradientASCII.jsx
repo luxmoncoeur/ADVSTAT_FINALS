@@ -451,7 +451,6 @@ const GradientASCII = ({
   ...rest
 }) => {
   const containerRef = useRef(null);
-  const canvasRef = useRef(null);
   const wakeRef = useRef(null);
   const palette = (Array.isArray(colors) && colors.length ? colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
   const settings = {
@@ -484,21 +483,34 @@ const GradientASCII = ({
 
   useEffect(() => {
     const container = containerRef.current;
-    const canvas = canvasRef.current;
-    const gl = canvas?.getContext('webgl2', {
+    if (!container) return undefined;
+    // Make a fresh canvas on every mount. The cleanup below calls loseContext(),
+    // and React's dev double-mount would otherwise reuse that dead canvas,
+    // leaving the field blank (Chrome's "sad face" context-lost icon).
+    const canvas = document.createElement('canvas');
+    canvas.className = 'gradient-ascii-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    container.appendChild(canvas);
+    const gl = canvas.getContext('webgl2', {
       alpha: true,
       premultipliedAlpha: true,
       antialias: false,
       depth: false,
       stencil: false
     });
-    if (!container || !canvas || !gl) return undefined;
+    if (!gl) {
+      canvas.remove();
+      return undefined;
+    }
 
     const field = link(gl, FIELD);
     const halo = link(gl, HALO);
     const blur = link(gl, BLUR);
     const composite = link(gl, COMPOSITE);
-    if (!field || !halo || !blur || !composite) return undefined;
+    if (!field || !halo || !blur || !composite) {
+      canvas.remove();
+      return undefined;
+    }
     const vao = gl.createVertexArray();
     const fieldTarget = createTarget(gl, 2);
     const haloA = createTarget(gl, 1);
@@ -825,6 +837,7 @@ const GradientASCII = ({
       gl.deleteVertexArray(vao);
       [field, halo, blur, composite].forEach(item => gl.deleteProgram(item.program));
       gl.getExtension('WEBGL_lose_context')?.loseContext();
+      canvas.remove();
     };
   }, []);
 
@@ -838,9 +851,7 @@ const GradientASCII = ({
       className={`gradient-ascii-container${className ? ` ${className}` : ''}`}
       style={style}
       {...rest}
-    >
-      <canvas ref={canvasRef} className="gradient-ascii-canvas" aria-hidden="true" />
-    </div>
+    />
   );
 };
 
