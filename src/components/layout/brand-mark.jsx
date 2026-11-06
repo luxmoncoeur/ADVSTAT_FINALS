@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-/** ADVSTAT logo: data points and a fitted regression line inside a rounded tile. */
+/** AnalytIQ Studio logo: data points and a fitted regression line inside a rounded tile. */
 export function BrandMark({ className = "size-8" }) {
   return (
     <span className={`relative block shrink-0 ${className}`} aria-hidden="true">

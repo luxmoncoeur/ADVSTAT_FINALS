@@ -1,12 +1,54 @@
-# ADVSTAT — Statistics Lab
+<p align="center">
+  <img src="public/brand/stats-logo.png" alt="AnalytIQ Studio logo" width="160" height="160" />
+</p>
 
-> Run linear regression and Z-tests in your browser, with every step of the solution shown.
+<h1 align="center">AnalytIQ Studio</h1>
+
+<p align="center">
+  <strong>A statistics lab for linear regression and Z-tests, with every step of the solution shown.</strong>
+</p>
+
+<p align="center">
+  <a href="https://analytiq-studio.onrender.com/">
+    <img src="https://img.shields.io/badge/Live%20site-analytiq--studio.onrender.com-3B5BDB?style=for-the-badge&logo=render&logoColor=white" alt="Live site: analytiq-studio.onrender.com" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white" alt="Next.js 16" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4" />
+  <img src="https://img.shields.io/badge/Recharts-3-8884D8" alt="Recharts 3" />
+  <img src="https://img.shields.io/badge/Vitest-tested-6E9F18?logo=vitest&logoColor=white" alt="Tested with Vitest" />
+  <img src="https://img.shields.io/badge/Playwright-e2e-2EAD33?logo=playwright&logoColor=white" alt="End-to-end tests with Playwright" />
+</p>
+
+<p align="center">
+  <a href="#introduction">Introduction</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#installation">Installation</a> ·
+  <a href="#commands">Commands</a> ·
+  <a href="#contributing">Contributing</a> ·
+  <a href="#tech-stack">Tech Stack</a>
+</p>
+
+---
 
 ## Introduction
 
-ADVSTAT is a web app for two core topics in introductory statistics: **simple linear regression** and **Z-based hypothesis testing**. You enter your data or sample values, and ADVSTAT gives you the answer along with the full worked solution, charts, and a plain-language interpretation.
+AnalytIQ Studio is a web app for two core topics in introductory statistics: **simple linear regression** and **Z-based hypothesis testing**. You enter your data or sample values, and AnalytIQ Studio gives you the answer along with the full worked solution, charts, and a plain-language interpretation.
 
 The app is built for learning. Results match standard statistical software, and each formula is shown next to the numbers it produced, so you can check every step against your own work.
+
+The app has five main pages:
+
+| Page               | What you can do                                                                  |
+| ------------------ | -------------------------------------------------------------------------------- |
+| Dashboard          | Preview a live regression fit and a Z-test sandbox using sample datasets         |
+| Linear Regression  | Enter paired data and get the regression line, r, R², charts, and predictions    |
+| Hypothesis Testing | Run one- and two-sample Z-tests for means and proportions                        |
+| Formulas & Z-Table | Look up every formula the app uses, the decision rules, and the standard Z-table |
+| About              | Read about the project and the BSIT-3A class that built it                       |
 
 ## Features
 
@@ -35,6 +77,10 @@ The app is built for learning. Results match standard statistical software, and 
 
 - A reference page with every formula the app uses, decision rules, a table of common critical values, and a full standard normal (Z) table.
 
+### Printable Reports
+
+- Open a clean report of any regression or hypothesis test result, with the inputs, answer, and worked solution together. Print it or save it as a PDF from the browser.
+
 ### General
 
 - Light and dark themes.
@@ -45,22 +91,29 @@ The app is built for learning. Results match standard statistical software, and 
 ## Project Structure
 
 ```
-ADVSTAT_FINALS/
+AnalytIQ-Studio/
+├── public/
+│   └── brand/                  # Logo files
 ├── src/
-│   ├── app/                    # Pages (Next.js App Router)
-│   │   ├── page.js             # Dashboard
-│   │   ├── regression/         # Linear regression page
-│   │   ├── hypothesis/         # Hypothesis testing page
-│   │   └── learn/              # Formulas & Z-table page
+│   ├── app/                    # Routes (Next.js App Router)
+│   │   ├── page.js             # Landing page
+│   │   └── (workspace)/        # Pages that share the sidebar layout
+│   │       ├── dashboard/
+│   │       ├── regression/     # Linear regression
+│   │       ├── hypothesis/     # Hypothesis testing
+│   │       ├── learn/          # Formulas & Z-table
+│   │       └── about/          # About the project and the team
 │   ├── components/
-│   │   ├── layout/             # Sidebar, header, navigation
-│   │   ├── shared/             # Reusable pieces (result cards, number fields, solution steps)
+│   │   ├── layout/             # Sidebar, header, navigation, logo
+│   │   ├── shared/             # Reusable pieces (result cards, number fields, solution steps, reports)
 │   │   └── ui/                 # Base UI components (shadcn/ui)
 │   ├── features/
+│   │   ├── landing/            # Landing page sections and figures
 │   │   ├── dashboard/
 │   │   ├── regression/         # Data entry, charts, results, example datasets
 │   │   ├── hypothesis/         # Test inputs, normal curve, Z-table, explanations
-│   │   └── learn/
+│   │   ├── learn/
+│   │   └── about/              # Project info and team members
 │   ├── hooks/                  # Shared React hooks
 │   └── lib/
 │       ├── stats/              # Statistics engine (regression, Z-tests, normal distribution)
@@ -92,8 +145,8 @@ The statistics engine in `src/lib/stats/` contains plain JavaScript functions wi
 1. Clone the repository and open the project folder:
 
    ```bash
-   git clone https://github.com/luxmoncoeur/ADVSTAT_FINALS.git
-   cd ADVSTAT_FINALS
+   git clone https://github.com/luxmoncoeur/AnalytIQ-Studio.git
+   cd AnalytIQ-Studio
    ```
 
 2. Install dependencies:
@@ -145,6 +198,20 @@ npm run fixtures
 | `npm run test:e2e`     | Run end-to-end and accessibility tests in a real browser |
 | `npm run fixtures`     | Regenerate reference test values with Python (see above) |
 
+## Contributing
+
+1. Create a branch from `main` (for example, `yourname-11/6/26-v1`).
+2. Make your changes, then check them before pushing:
+
+   ```bash
+   npm run lint
+   npm run format:check
+   npm test
+   ```
+
+3. Push the branch and open a pull request into `main`.
+4. A pull request needs one approval from a teammate before it can be merged.
+
 ## Tech Stack
 
 | Area             | Tools                                                                                                                                        |
@@ -165,7 +232,8 @@ npm run fixtures
 ---
 
 <p align="center">
-  <strong>ADVSTAT — Statistics Lab</strong><br />
-  Built as a final project for Advanced Statistics.<br />
-  <sub>© 2026 ADVSTAT team. All rights reserved.</sub>
+  <img src="public/brand/stats-logo-128.png" alt="" width="40" height="40" /><br />
+  <strong>AnalytIQ Studio — Statistics Lab</strong><br />
+  Built by BSIT-3A as a final project for Advanced Statistics.<br />
+  <sub>© 2026 AnalytIQ Studio team. All rights reserved.</sub>
 </p>

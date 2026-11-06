@@ -1,4 +1,4 @@
-"""Generate reference values for the ADVSTAT stats tests.
+"""Generate reference values for the AnalytIQ Studio stats tests.
 
 Every number here comes from SciPy / NumPy / statsmodels, independently of the
 JavaScript implementation, and is written to src/lib/stats/__tests__/fixtures/.

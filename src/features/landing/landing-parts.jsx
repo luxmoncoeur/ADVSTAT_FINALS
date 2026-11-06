@@ -16,7 +16,7 @@ export function LandingHeader() {
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-4 px-5 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5 rounded-md">
           <BrandMark className="size-7" />
-          <span className="text-[15px] font-semibold tracking-[-0.02em]">ADVSTAT</span>
+          <span className="text-[15px] font-semibold tracking-[-0.02em]">AnalytIQ Studio</span>
         </Link>
         <nav aria-label="Primary" className="ml-6 hidden items-center gap-1 md:flex">
           {[

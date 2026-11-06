@@ -280,7 +280,7 @@ export function LandingPage() {
         <div className={`${container} flex flex-col gap-6 py-8 sm:flex-row sm:items-center sm:justify-between`}>
           <p className="flex items-center gap-2.5">
             <BrandMark className="size-6" />
-            <span className="text-sm font-semibold tracking-[-0.02em]">ADVSTAT</span>
+            <span className="text-sm font-semibold tracking-[-0.02em]">AnalytIQ Studio</span>
             <span className="text-sm text-muted-foreground">Advanced Statistics Workstation</span>
           </p>
           <p className="text-sm text-muted-foreground">
