@@ -140,7 +140,7 @@ export function RegressionWorkspace() {
                       htmlFor={`label-${key}`}
                       className="text-xs font-medium text-muted-foreground"
                     >
-                      {key === "x" ? "X variable (independent)" : "Y variable (dependent)"}
+                      {key === "x" ? "X (independent)" : "Y (dependent)"}
                     </Label>
                     <Input
                       id={`label-${key}`}

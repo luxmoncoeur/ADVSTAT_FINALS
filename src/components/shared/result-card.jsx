@@ -42,7 +42,7 @@ export function ResultCard({
   return (
     <Card
       className={cn(
-        "rounded-xl border bg-card p-4 shadow-xs transition-colors sm:p-5",
+        "gap-0 rounded-xl border bg-card p-4 shadow-xs transition-colors",
         palette.border,
         className,
       )}
@@ -67,14 +67,15 @@ export function ResultCard({
       </div>
       <div
         className={cn(
-          "mt-2 font-mono text-2xl font-semibold tracking-tight break-words text-card-foreground sm:text-[1.7rem]",
-          valueClassName,
+          "mt-1.5 font-mono font-semibold tracking-tight break-words text-card-foreground",
+          // A caller's size replaces the default instead of fighting its sm: breakpoint.
+          valueClassName ?? "text-2xl sm:text-[1.7rem]",
         )}
       >
         {children}
       </div>
       {hint ? (
-        <div className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{hint}</div>
+        <div className="mt-1 text-xs leading-relaxed text-muted-foreground">{hint}</div>
       ) : null}
     </Card>
   );
