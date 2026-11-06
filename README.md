@@ -1,17 +1,34 @@
 <p align="center">
-  <img src="public/brand/stats-logo.png" alt="AnalytIQ Studio logo" width="112" height="112" />
+  <img src="public/brand/stats-logo.png" alt="AnalytIQ Studio logo" width="160" height="160" />
 </p>
 
 <h1 align="center">AnalytIQ Studio</h1>
 
 <p align="center">
-  <strong>Statistics Lab</strong> — run linear regression and Z-tests in your browser, with every step of the solution shown.
+  <strong>A statistics lab for linear regression and Z-tests, with every step of the solution shown.</strong>
 </p>
 
 <p align="center">
+  <a href="https://analytiq-studio.onrender.com/">
+    <img src="https://img.shields.io/badge/Live%20site-analytiq--studio.onrender.com-3B5BDB?style=for-the-badge&logo=render&logoColor=white" alt="Live site: analytiq-studio.onrender.com" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white" alt="Next.js 16" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4" />
+  <img src="https://img.shields.io/badge/Recharts-3-8884D8" alt="Recharts 3" />
+  <img src="https://img.shields.io/badge/Vitest-tested-6E9F18?logo=vitest&logoColor=white" alt="Tested with Vitest" />
+  <img src="https://img.shields.io/badge/Playwright-e2e-2EAD33?logo=playwright&logoColor=white" alt="End-to-end tests with Playwright" />
+</p>
+
+<p align="center">
+  <a href="#introduction">Introduction</a> ·
   <a href="#features">Features</a> ·
   <a href="#installation">Installation</a> ·
   <a href="#commands">Commands</a> ·
+  <a href="#contributing">Contributing</a> ·
   <a href="#tech-stack">Tech Stack</a>
 </p>
 
@@ -22,6 +39,16 @@
 AnalytIQ Studio is a web app for two core topics in introductory statistics: **simple linear regression** and **Z-based hypothesis testing**. You enter your data or sample values, and AnalytIQ Studio gives you the answer along with the full worked solution, charts, and a plain-language interpretation.
 
 The app is built for learning. Results match standard statistical software, and each formula is shown next to the numbers it produced, so you can check every step against your own work.
+
+The app has five main pages:
+
+| Page               | What you can do                                                                  |
+| ------------------ | -------------------------------------------------------------------------------- |
+| Dashboard          | Preview a live regression fit and a Z-test sandbox using sample datasets         |
+| Linear Regression  | Enter paired data and get the regression line, r, R², charts, and predictions    |
+| Hypothesis Testing | Run one- and two-sample Z-tests for means and proportions                        |
+| Formulas & Z-Table | Look up every formula the app uses, the decision rules, and the standard Z-table |
+| About              | Read about the project and the BSIT-3A class that built it                       |
 
 ## Features
 
@@ -170,6 +197,20 @@ npm run fixtures
 | `npm run coverage`     | Run tests and generate a code coverage report            |
 | `npm run test:e2e`     | Run end-to-end and accessibility tests in a real browser |
 | `npm run fixtures`     | Regenerate reference test values with Python (see above) |
+
+## Contributing
+
+1. Create a branch from `main` (for example, `yourname-11/6/26-v1`).
+2. Make your changes, then check them before pushing:
+
+   ```bash
+   npm run lint
+   npm run format:check
+   npm test
+   ```
+
+3. Push the branch and open a pull request into `main`.
+4. A pull request needs one approval from a teammate before it can be merged.
 
 ## Tech Stack
 
