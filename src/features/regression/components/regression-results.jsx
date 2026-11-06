@@ -173,7 +173,7 @@ export function RegressionVisuals({ result, labels }) {
                 </TabsList>
               </CardAction>
             </CardHeader>
-            <CardContent className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_17rem]">
+            <CardContent className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_17rem]">
               <div className="min-w-0 space-y-3">
                 <TabsContent value="scatter" className="space-y-3">
                   <div className="flex flex-wrap gap-x-5 gap-y-2">
@@ -239,8 +239,8 @@ export function RegressionVisuals({ result, labels }) {
 /** Below the charts: worked solution beside the interpretation and prediction. */
 export function RegressionSolution({ result, labels, action = null }) {
   return (
-    <div className="grid items-start gap-4 xl:grid-cols-12">
-      <Reveal className="xl:col-span-7">
+    <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-12">
+      <Reveal className="min-w-0 xl:col-span-7">
         <Card>
           <CardHeader>
             <CardTitle>Step-by-step solution</CardTitle>
@@ -263,7 +263,7 @@ export function RegressionSolution({ result, labels, action = null }) {
           </CardContent>
         </Card>
       </Reveal>
-      <div className="space-y-4 xl:col-span-5">
+      <div className="min-w-0 space-y-4 xl:col-span-5">
         <Reveal>
           <Card>
             <CardHeader>

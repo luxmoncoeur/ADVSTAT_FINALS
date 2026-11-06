@@ -122,8 +122,8 @@ export function RegressionWorkspace() {
         description="Enter paired X and Y values to get the regression equation Ŷ = a + bX, the correlation coefficient r, and the strength of the relationship, with every step shown."
       />
 
-      <div className="grid items-start gap-4 xl:grid-cols-12">
-        <Reveal className="xl:col-span-4" distance={16}>
+      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-12">
+        <Reveal className="min-w-0 xl:col-span-4" distance={16}>
           <Card className="gap-4 py-4 shadow-xs">
             <CardHeader className="px-4">
               <CardTitle>Data</CardTitle>

@@ -17,6 +17,15 @@ for (const width of [320, 375]) {
       });
     }
 
+    test("the computation table scrolls inside its box, not the page", async ({ page }) => {
+      await page.goto("/regression?example=car-age");
+      await page.getByRole("tab", { name: "Computation table" }).click();
+      const table = page.getByRole("region", { name: "Computation table" });
+      await expect(table).toBeVisible();
+      await expect.poll(() => overflow(page)).toBeLessThanOrEqual(0);
+      expect(await table.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    });
+
     test("opening the theme menu does not shift the page", async ({ page }) => {
       await page.goto("/dashboard");
       await page.getByRole("button", { name: "Change color theme" }).click();
