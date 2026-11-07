@@ -1016,9 +1016,7 @@ export function Dashboard() {
                       <TableHead className="w-[11%] text-right font-mono text-xs">
                         Pearson r
                       </TableHead>
-                      <TableHead className="w-[7%] min-w-[48px] text-center text-xs">
-                        Action
-                      </TableHead>
+                      <TableHead className="w-[7%] min-w-[48px] text-center text-xs"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="[&_tr:last-child]:border-b [&_tr:last-child]:border-border/70">
@@ -1081,7 +1079,7 @@ export function Dashboard() {
                                 <Link
                                   href={`/regression?example=${item.id}#results`}
                                   aria-label={`Open ${item.name} in regression analysis`}
-                                  className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                  className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
                                 >
                                   <ArrowUpRight
                                     className="size-4 text-muted-foreground transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground motion-reduce:transition-none"
