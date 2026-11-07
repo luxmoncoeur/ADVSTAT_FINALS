@@ -23,7 +23,7 @@ export function AboutContent() {
         description="A statistics workstation for simple linear regression and Z-tests that shows every sum, formula and decision rule behind the answer. Results are checked against SciPy and statsmodels. Built by BSIT-3A."
       />
 
-      <div className="panel overflow-hidden rounded-2xl border bg-card">
+      <div className="panel overflow-hidden rounded-2xl border bg-card dark:border-white/10 dark:bg-zinc-950/60">
         <TeamLanyardRail
           items={ITEMS}
           eyebrow="The team"

@@ -241,7 +241,7 @@ function Hole() {
   return (
     <span
       aria-hidden="true"
-      className="absolute left-1/2 top-[0.72em] block h-[0.56em] w-[2.7em] -translate-x-1/2 rounded-full bg-background"
+      className="absolute left-1/2 top-[0.72em] block h-[0.56em] w-[2.7em] -translate-x-1/2 rounded-full bg-background dark:bg-zinc-950"
       style={{ boxShadow: "inset 0 0.09em 0.2em color-mix(in oklab, black 55%, transparent), 0 0.05em 0 color-mix(in oklab, white 30%, transparent)" }}
     />
   );
@@ -258,7 +258,7 @@ function Finish() {
 
 function Silhouette() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 40 40" className="size-full text-muted-foreground/60">
+    <svg aria-hidden="true" viewBox="0 0 40 40" className="size-full text-muted-foreground/60 dark:text-zinc-300">
       <circle cx="20" cy="15" r="7" fill="currentColor" />
       <path d="M6 38c1.5-8 7-12 14-12s12.5 4 14 12z" fill="currentColor" />
     </svg>
@@ -272,7 +272,7 @@ function ScrollButton({ direction, disabled, onClick }) {
       aria-label={direction < 0 ? "Scroll badges left" : "Scroll badges right"}
       disabled={disabled}
       onClick={onClick}
-      className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-card text-foreground shadow-xs transition-[opacity,transform] duration-150 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:pointer-events-none disabled:opacity-35 motion-reduce:transition-none"
+      className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-card text-foreground shadow-xs transition-[opacity,transform] duration-150 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:pointer-events-none disabled:opacity-35 motion-reduce:transition-none dark:border-white/20 dark:bg-zinc-900/90 dark:hover:bg-zinc-800"
     >
       <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d={direction < 0 ? "M10 3.5 5.5 8l4.5 4.5" : "M6 3.5 10.5 8 6 12.5"} />
@@ -291,11 +291,11 @@ const BadgeFaces = React.memo(function BadgeFaces({ item, tone }) {
   const links = (item.links ?? []).slice(0, 3);
   return (
     <>
-      <span data-face="front" className="absolute inset-0 flex flex-col items-center overflow-hidden rounded-[0.85em] border border-border bg-card px-[0.8em] pb-[0.7em] text-card-foreground [backface-visibility:hidden]" style={{ transform: "translateZ(1px)" }}>
+      <span data-face="front" className="absolute inset-0 flex flex-col items-center overflow-hidden rounded-[0.85em] border border-border bg-card px-[0.8em] pb-[0.7em] text-card-foreground [backface-visibility:hidden] dark:border-white/20 dark:bg-zinc-900/95 dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.8),0_1px_0_0_rgba(255,255,255,0.08)_inset]" style={{ transform: "translateZ(1px)" }}>
         <Band tone={tone} tall />
         <Hole />
-        <span className="relative mt-[2.05em] block size-[5.3em] shrink-0 rounded-full bg-card p-[0.2em]" style={{ boxShadow: "0 0.15em 0.5em color-mix(in oklab, var(--color-foreground) 22%, transparent)" }}>
-          <span className="relative block size-full overflow-hidden rounded-full bg-muted">
+        <span className="relative mt-[2.05em] block size-[5.3em] shrink-0 rounded-full bg-card p-[0.2em] dark:bg-zinc-800 dark:ring-1 dark:ring-white/10" style={{ boxShadow: "0 0.15em 0.5em color-mix(in oklab, var(--color-foreground) 22%, transparent)" }}>
+          <span className="relative block size-full overflow-hidden rounded-full bg-muted dark:bg-zinc-950/70">
             <Silhouette />
             {item.image && !failed && (
               // eslint-disable-next-line @next/next/no-img-element -- tiny portrait inside a 3D-transformed badge
@@ -307,7 +307,7 @@ const BadgeFaces = React.memo(function BadgeFaces({ item, tone }) {
         <span className="mt-[0.55em] line-clamp-2 block w-full text-center text-[1.02em] font-semibold leading-tight tracking-tight text-balance">{item.name}</span>
         <span className="mt-[0.15em] block w-full truncate text-center text-[0.8em] leading-snug text-muted-foreground">{item.role}</span>
         {item.team && <span className="mt-[0.5em] block w-full truncate text-center text-[0.6em] font-medium uppercase tracking-[0.2em] text-muted-foreground">{item.team}</span>}
-        <span className="mt-auto block w-full border-t border-dashed border-border pt-[0.5em]">
+        <span className="mt-auto block w-full border-t border-dashed border-border pt-[0.5em] dark:border-white/15">
           <svg aria-hidden="true" viewBox={`0 0 ${bars.width} 20`} preserveAspectRatio="none" className="block h-[1.6em] w-full text-foreground/80">
             <path d={bars.d} fill="currentColor" />
           </svg>
@@ -315,7 +315,7 @@ const BadgeFaces = React.memo(function BadgeFaces({ item, tone }) {
         </span>
         <Finish />
       </span>
-      <span data-face="back" className="absolute inset-0 overflow-hidden rounded-[0.85em] border border-border bg-card text-card-foreground [backface-visibility:hidden]" style={{ transform: "rotateY(180deg) translateZ(1px)" }}>
+      <span data-face="back" className="absolute inset-0 overflow-hidden rounded-[0.85em] border border-border bg-card text-card-foreground [backface-visibility:hidden] dark:border-white/20 dark:bg-zinc-900/95 dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.8),0_1px_0_0_rgba(255,255,255,0.08)_inset]" style={{ transform: "rotateY(180deg) translateZ(1px)" }}>
         <Band tone={tone} />
         <Hole />
         <span className="absolute inset-x-[0.85em] top-[2.6em] block">
@@ -329,7 +329,7 @@ const BadgeFaces = React.memo(function BadgeFaces({ item, tone }) {
         )}
         {tags.length > 0 && (
           <span className="absolute inset-x-[0.85em] top-[9.8em] flex flex-wrap gap-[0.28em]">
-            {tags.map((tag) => <span key={tag} className="block rounded-full border border-border bg-muted/60 px-[0.6em] py-[0.16em] text-[0.6em] leading-tight text-muted-foreground">{tag}</span>)}
+            {tags.map((tag) => <span key={tag} className="block rounded-full border border-border bg-muted/60 px-[0.6em] py-[0.16em] text-[0.6em] leading-tight text-muted-foreground dark:border-white/15 dark:bg-zinc-800/80 dark:text-zinc-300">{tag}</span>)}
           </span>
         )}
         {links.length > 0 && (
@@ -995,7 +995,7 @@ export function TeamLanyardRail({
   const person = current === null ? null : items[current] ?? null;
   const showingBack = current !== null && current === flipped;
   const centerIndex = size.carousel ? (active ?? live.current.carouselIndex) : null;
-  const line1 = person ? `${person.name} — ${person.role}` : caption;
+  const line1 = person ? `${person.name} - ${person.role}` : caption;
   const line2 = person ? (showingBack ? labels.back : labels.flip) : "";
   const captionId = `${uid}-caption`;
 
@@ -1020,10 +1020,15 @@ export function TeamLanyardRail({
       {/* scroll: every badge stays on one long rail and the strip scrolls sideways instead of becoming a carousel */}
       <div
         ref={scroller}
-        className={scroll ? "mt-4 overflow-x-auto overscroll-x-contain pb-2 [scrollbar-width:thin]" : "contents"}
+        className={scroll ? "mt-4 overflow-x-auto overscroll-x-contain pb-2 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" : "contents"}
         style={scroll ? (() => {
           const mask = `linear-gradient(to right, ${edges.start ? "transparent" : "black"}, black 48px, black calc(100% - 48px), ${edges.end ? "transparent" : "black"})`;
-          return { maskImage: mask, WebkitMaskImage: mask };
+          return {
+            maskImage: mask,
+            WebkitMaskImage: mask,
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          };
         })() : undefined}
       >
       <div

@@ -11,6 +11,7 @@ export const MEMBERS = [
   "Palmero, Jerome L.",
   "Pesa, Jonadab A.",
   "Posadas, Arvin John J.",
+  "Rabara, John Kenneth",
   "Raboy, Liam Paul S.",
   "Rizaldo, Gabriel Rudolf G.",
   "Salazar, Catherine Joy P.",
