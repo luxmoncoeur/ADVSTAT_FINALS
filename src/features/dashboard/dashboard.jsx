@@ -3,6 +3,7 @@
 import {
   Activity,
   ArrowRight,
+  ArrowUpRight,
   BookOpenText,
   Calculator,
   ChartScatter,
@@ -1008,14 +1009,14 @@ export function Dashboard() {
                 <Table className="w-full min-w-[680px] table-fixed">
                   <TableHeader className="bg-muted/30">
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-[28%] text-xs">Dataset</TableHead>
-                      <TableHead className="w-[16%] text-xs">Category</TableHead>
-                      <TableHead className="w-[28%] text-xs">Variables (X → Y)</TableHead>
+                      <TableHead className="w-[30%] text-xs">Dataset</TableHead>
+                      <TableHead className="w-[15%] text-xs">Category</TableHead>
+                      <TableHead className="w-[30%] text-xs">Variables (X → Y)</TableHead>
                       <TableHead className="w-[7%] text-right font-mono text-xs">n</TableHead>
                       <TableHead className="w-[11%] text-right font-mono text-xs">
                         Pearson r
                       </TableHead>
-                      <TableHead className="w-[10%] min-w-[95px] text-center text-xs">
+                      <TableHead className="w-[7%] min-w-[48px] text-center text-xs">
                         Action
                       </TableHead>
                     </TableRow>
@@ -1077,17 +1078,16 @@ export function Dashboard() {
                             </TableCell>
                             <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                               <div className="flex justify-center">
-                                <Button
-                                  asChild
-                                  size="xs"
-                                  variant="outline"
-                                  className="h-7 gap-1 rounded-md px-2.5 text-xs font-medium transition-colors group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
+                                <Link
+                                  href={`/regression?example=${item.id}#results`}
+                                  aria-label={`Open ${item.name} in regression analysis`}
+                                  className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                 >
-                                  <Link href={`/regression?example=${item.id}#results`}>
-                                    Compute
-                                    <ArrowRight className="size-3" aria-hidden="true" />
-                                  </Link>
-                                </Button>
+                                  <ArrowUpRight
+                                    className="size-4 text-muted-foreground transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground motion-reduce:transition-none"
+                                    aria-hidden="true"
+                                  />
+                                </Link>
                               </div>
                             </TableCell>
                           </TableRow>
